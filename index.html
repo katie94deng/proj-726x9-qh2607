@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<!-- 防复制防盗全套代码，优化：仅禁止文本选中，不影响按钮/弹窗交互 -->
+<style>
+body {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+/* 按钮、弹窗允许点击选择文字，避免交互失效 */
+button, .popup, input {
+  user-select: text;
+  -webkit-user-select: text;
+}
+</style>
+<script>
+let devOpen = false;
+document.addEventListener('contextmenu', e=>e.preventDefault())
+document.addEventListener('copy', e=>e.preventDefault())
+document.addEventListener('cut', e=>e.preventDefault())
+document.addEventListener('keydown', e=>{
+  if(e.keyCode === 123) e.preventDefault()
+  if(e.ctrlKey && e.key.toLowerCase() === 'u') e.preventDefault()
+  if(e.ctrlKey && e.shiftKey && ['i','j','c'].includes(e.key.toLowerCase())) e.preventDefault()
+})
+function checkDev() {
+  const wGap = window.outerWidth - window.innerWidth;
+  const hGap = window.outerHeight - window.innerHeight;
+  if(wGap > 120 || hGap > 120) devOpen = true;
+  if(devOpen) window.location.href = "about:blank";
+}
+setInterval(checkDev, 600)
+</script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>青禾小园</title>
+<link rel="manifest" href="manifest.json">
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: system-ui, -apple-system, sans-serif;
+    }
+    body {
+        background: #F5F0E6;
+        color: #5A4B3E;
+        overflow-x: hidden;
+        max-width: 480px;
+        margin: 0 auto;
+        min-height: 100vh;
+    }
+    .page {
+        display: none;
+        padding: 12px;
+        padding-bottom: 80px;
+    }
+    .page.active {
+        display: block;
+    }
+    .top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 14px;
+        background: #A8D8B9;
+        border-radius: 12px;
+        margin-bottom: 16px;
+        color: #2d4636;
+        font-weight: 500;
+    }
+    .resource-item {
+        display: flex;
+        gap: 4px;
+    }
+    .btn {
+        background: #F7E8A6;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 16px;
+        font-size: 15px;
+        color: #5A4B3E;
+        transition: transform 0.2s;
+    }
+    .btn:active {
+        transform: scale(0.96);
+    }
+    .btn-green {
+        background: #A8D8B9;
+    }
+    .btn-pink {
+        background: #F5C6CB;
+    }
+    .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: min(480px, 100%);
+        display: flex;
+        justify-content: space-around;
+        background: #fff;
+        padding: 8px 0;
+        border-top-left-radius: 16px;
+        border-top-right-radius: 16px;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+    }
+    .nav-btn {
+        border: none;
+        background: transparent;
+        font-size: 13px;
+        color: #777;
+    }
+    .nav-btn.active {
+        color: #569c78;
+        font-weight: bold;
+    }
+    /* 农场地块 */
+    .farm-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    .plot {
+        aspect-ratio: 1/1;
+        background: #e2d8c8;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        padding: 4px;
+    }
+    .plot.locked {
+        background: #ccc;
+        color: #888;
+    }
+    .plot.planting {
+        background: #d1e7cb;
+    }
+    /* 答题页面 */
+    .quiz-title {
+        text-align: center;
+        font-size: 18px;
+        margin-bottom: 12px;
+    }
+    .progress-bar {
+        height: 8px;
+        background: #ddd;
+        border-radius: 99px;
+        margin-bottom: 20px;
+    }
+    .progress-inner {
+        height: 100%;
+        background: #A8D8B9;
+        border-radius: 99px;
+    }
+    .question-box {
+        background: #fff;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 16px;
+        min-height: 120px;
+    }
+    .option-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .option-item {
+        width: 100%;
+        padding: 12px;
+        border-radius: 10px;
+        border: 1px solid #dcd2c2;
+        background: #fff;
+        text-align: left;
+    }
+    /* 背包弹窗 */
+    .mask {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 99;
+    }
+    .popup {
+        width: min(90%, 420px);
+        background: #F5F0E6;
+        border-radius: 14px;
+        padding: 20px;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+    .popup-title {
+        text-align: center;
+        margin-bottom: 16px;
+        font-size: 17px;
+    }
+    .close-btn {
+        margin-top: 16px;
+        width: 100%;
+    }
+    .item-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #ddd;
+        align-items: center;
+        gap:8px;
+    }
+    .scene-item {
+        padding: 12px;
+        background: #fff;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .scene-locked {
+        opacity: 0.6;
+    }
+    .sort-box {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin: 12px 0;
+    }
+    .sort-basket {
+        border: 2px dashed #aaa;
+        padding: 20px 4px;
+        text-align: center;
+        border-radius: 10px;
+        min-height: 100px;
+    }
+    .sort-word-item {
+        padding: 8px;
+        background: #fff;
+        border-radius: 6px;
+        margin: 4px;
+        display: inline-block;
+    }
+    .tips-text {
+        font-size: 13px;
+        color: #777;
+        margin-top: 8px;
+    }
+</style>
+</head>
+<body>
+    <div id="app">
+        <!-- 农场主页 -->
+        <div id="farm-page" class="page active">
+            <div class="top-bar">
+                <div>🏡 青禾小院</div>
+                <div class="resource-item">
+                    <span>💰<span id="coin-num">50</span></span>
+                    <span style="margin-left:8px">✨<span id="light-num">0</span></span>
+                </div>
+            </div>
+            <h3>我的农田</h3>
+            <div class="farm-grid" id="farm-plots"></div>
+            <button class="btn btn-green" onclick="openSceneList()">📖 英语挑战</button>
+            <button class="btn" style="margin-top:10px" onclick="openBag()">🎒 背包仓库</button>
+        </div>
+
+        <!-- 场景选择页 -->
+        <div id="scene-page" class="page">
+            <div class="top-bar">
+                <button class="btn" onclick="switchPage('farm-page')">← 返回</button>
+                <div>英语场景</div>
+                <div></div>
+            </div>
+            <div id="scene-list"></div>
+        </div>
+
+        <!-- 答题页面 -->
+        <div id="quiz-page" class="page">
+            <div class="top-bar">
+                <button class="btn" onclick="exitQuiz()">退出</button>
+                <div id="quiz-scene-name">场景</div>
+                <div></div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-inner" id="quiz-progress" style="width:0%"></div>
+            </div>
+            <div class="quiz-title">第 <span id="cur-q-num">1</span>/10 题</div>
+            <div class="question-box" id="question-content"></div>
+            <div class="option-list" id="option-container"></div>
+        </div>
+
+        <!-- 底部导航 -->
+        <div class="bottom-nav">
+            <button class="nav-btn active" onclick="switchNav('farm-page', this)">农场</button>
+            <button class="nav-btn" onclick="openSceneList()">答题</button>
+            <button class="nav-btn" onclick="openBag()">背包</button>
+            <button class="nav-btn" onclick="openWrongBook()">错题本</button>
+        </div>
+
+        <!-- 弹窗容器 -->
+        <div id="mask-box"></div>
+    </div>
+
+    <script>
+        // ====================== 1. 全局配置与题库（修复重复id h26→h26new） ======================
+        // 作物配置
+        const cropConfig = {
+            cabbage: { name: "白菜", seedScene: "food", growTime: 30, sellPrice: 8 },
+            tomato: { name: "番茄", seedScene: "food", growTime: 60, sellPrice: 12 },
+            wheat: { name: "小麦", seedScene: "home", growTime: 90, sellPrice: 15 },
+            strawberry: { name: "草莓", seedScene: "shop", growTime: 120, sellPrice: 25 }
+        }
+        // 地块解锁消耗
+        const plotCost = [0,0,0,20,30,40,50,50]; // 第1、2、3块免费，4~8消耗对应光粒
+        const maxPlot = 8;
+        // 场景配置
+        const sceneConfig = [
+            {
+                id:"food",
+                name:"饮食就餐",
+                unlock:"init",
+                levelTotal:3
+            },
+            {
+                id:"home",
+                name:"居家生活",
+                unlock:"foodAllClear",
+                levelTotal:3
+            },
+            {
+                id:"shop",
+                name:"购物消费",
+                unlock:"homeAllClear",
+                levelTotal:3
+            }
+        ]
+        // 题库标准结构，修复重复ID
+        const questionBank = {
+            food: {
+                1: [
+                    {id:"f1",type:"choice_word",q:"tomato 的中文意思？",opts:["土豆","番茄","洋葱","黄瓜"],ans:1,desc:"四级日常食材词汇，番茄"},
+                    {id:"f2",type:"choice_word",q:"cabbage 是？",opts:["生菜","白菜","萝卜","香菜"],ans:1,desc:"家常菜白菜"},
+                    {id:"f3",type:"choice_scene",q:"餐厅想要点餐怎么说？",opts:["Check please","May I order?","Good night","Where is restroom"],ans:1,desc:"就餐点餐基础句"},
+                    {id:"f4",type:"choice_dialog",q:"A: Would you like some rice? B: ____",opts:["Yes,please","I am fine","See you","No problem"],ans:0,desc:"用餐问答"},
+                    {id:"f5",type:"sort",sortType:"food",words:["apple,sofa,potato,desk"],right:["apple","potato"]},
+                    {id:"f6",type:"choice_word",q:"egg 含义",opts:["鸡蛋","牛奶","面包","奶酪"],ans:0,desc:"早餐高频词"},
+                    {id:"f7",type:"choice_scene",q:"表达这个菜很好吃",opts:["It's delicious","I am tired","Too expensive","I don't know"],ans:0},
+                    {id:"f8",type:"choice_dialog",q:"A: What would you like to drink? B: ____",opts:["Juice please","I'm 20 years old","I live here","I like cat"],ans:0},
+                    {id:"f9",type:"choice_word",q:"milk 意思",opts:["可乐","牛奶","茶水","啤酒"],ans:1},
+                    {id:"f10",type:"sort",sortType:"fruit",words:["carrot,banana,orange,chair"],right:["banana","orange"]}
+                ],
+                2: [
+                    {id:"f11",type:"choice_word",q:"spoon 餐具是？",opts:["叉子","勺子","筷子","刀"],ans:1},
+                    {id:"f12",type:"choice_scene",q:"结账买单英文",opts:["Check out","Help me","Wait a minute","Let's go"],ans:0},
+                    {id:"f13",type:"choice_dialog",q:"A: Do you want soup? B: No thanks,____",opts:["I'm full","I want soup","Give me more","OK"],ans:0},
+                    {id:"f14",type:"choice_word",q:"bread 翻译",opts:["蛋糕","面包","饼干","饭团"],ans:1},
+                    {id:"f15",type:"sort",sortType:"vegetable",words:["tomato,pear,cabbage,grape"],right:["tomato","cabbage"]},
+                    {id:"f16",type:"choice_word",q:"bowl 意思",opts:["盘子","碗","杯子","锅"],ans:1},
+                    {id:"f17",type:"choice_scene",q:"外卖怎么说",opts:["take away","eat here","cook myself","buy fruit"],ans:0},
+                    {id:"f18",type:"choice_dialog",q:"A: Taste this salad. B: ____",opts:["It tastes great","I can't swim","I live far","I'm busy"],ans:0},
+                    {id:"f19",type:"choice_word",q:"cheese 含义",opts:["芝士","黄油","酸奶","奶油"],ans:0},
+                    {id:"f20",type:"sort",sortType:"drink",words:["water,rice,juice,noodle"],right:["water","juice"]}
+                ],
+                3: [
+                    {id:"f21",type:"choice_word",q:"garlic 大蒜",opts:["洋葱","大蒜","生姜","辣椒"],ans:1},
+                    {id:"f22",type:"choice_scene",q:"我不吃辣",opts:["I don't eat spicy food","I love hot pot","I want chili","Spicy is good"],ans:0},
+                    {id:"f23",type:"choice_dialog",q:"A: How do you like the steak? B: ____",opts:["Medium rare please","I don't eat meat","I come alone","It's rain"],ans:1},
+                    {id:"f24",type:"choice_word",q:"dessert 甜品",opts:["主食","甜品","汤品","酒水"],ans:1},
+                    {id:"f25",type:"sort",sortType:"meat",words:["chicken,apple,beef,peach"],right:["chicken","beef"]},
+                    {id:"f26",type:"choice_word",q:"fork 叉子",opts:["叉子","小刀","吸管","碗"],ans:0},
+                    {id:"f27",type:"choice_scene",q:"打包剩余食物",opts:["doggy bag","more food","new plate","another cup"],ans:0},
+                    {id:"f28",type:"choice_dialog",q:"A: Any special diet? B: I'm a ____",opts:["vegetarian","driver","student","doctor"],ans:0},
+                    {id:"f29",type:"choice_word",q:"yogurt 酸奶",opts:["奶茶","酸奶","汽水","豆浆"],ans:1},
+                    {id:"f30",type:"sort",sortType:"tableware",words:["spoon,pen,fork,book"],right:["spoon","fork"]}
+                ]
+            },
+            home: {
+                1: [
+                    {id:"h1",type:"choice_word",q:"sofa 意思",opts:["桌子","沙发","衣柜","窗台"],ans:1,desc:"居家家具"},
+                    {id:"h2",type:"choice_word",q:"bed 翻译",opts:["椅子","床","地毯","窗帘"],ans:1},
+                    {id:"h3",type:"choice_scene",q:"打扫房间怎么说",opts:["clean the room","wash clothes","cook meal","buy furniture"],ans:0},
+                    {id:"h4",type:"choice_dialog",q:"A: Where is my key? B: It's ____ the table",opts:["on","eat","drink","play"],ans:0},
+                    {id:"h5",type:"sort",sortType:"furniture",words:["sofa,apple,desk,banana"],right:["sofa","desk"]},
+                    {id:"h6",type:"choice_word",q:"lamp 台灯",opts:["镜子","台灯","柜子","门"],ans:1},
+                    {id:"h7",type:"choice_scene",q:"洗衣服",opts:["wash clothes","water plant","sweep floor","wash bowl"],ans:0},
+                    {id:"h8",type:"choice_dialog",q:"A: It's time to sleep. B: OK, good ____",opts:["night","morning","afternoon","day"],ans:0},
+                    {id:"h9",type:"choice_word",q:"curtain 窗帘",opts:["地毯","窗帘","抱枕","挂画"],ans:1},
+                    {id:"h10",type:"sort",sortType:"tool",words:["mop,pen,brush,pencil"],right:["mop","brush"]}
+                ],
+                2: [
+                    {id:"h11",type:"choice_word",q:"fridge 冰箱",opts:["微波炉","冰箱","烤箱","洗碗机"],ans:1},
+                    {id:"h12",type:"choice_scene",q:"开窗通风",opts:["open the window","close door","turn on light","water flower"],ans:0},
+                    {id:"h13",type:"choice_dialog",q:"A: Can you help me hang clothes? B: ____",opts:["Sure","I can't swim","I don't know","It's expensive"],ans:0},
+                    {id:"h14",type:"choice_word",q:"blanket 毯子",opts:["枕头","毯子","床单","被套"],ans:1},
+                    {id:"h15",type:"sort",sortType:"bathroom",words:["shower,desk,toilet,sofa"],right:["shower","toilet"]},
+                    {id:"h16",type:"choice_word",q:"mirror 镜子",opts:["镜子","钟表","花瓶","收纳盒"],ans:0},
+                    {id:"h17",type:"choice_scene",q:"倒垃圾",opts:["take out trash","feed cat","wash car","fold quilt"],ans:0},
+                    {id:"h18",type:"choice_dialog",q:"A: What do you do at 7 a.m.? B: I ____ breakfast",opts:["make","read","draw","run"],ans:0},
+                    {id:"h19",type:"choice_word",q:"carpet 地毯",opts:["地垫","地毯","脚垫","桌布"],ans:1},
+                    {id:"h20",type:"sort",sortType:"plant",words:["rose,phone,lily,radio"],right:["rose","lily"]}
+                ],
+                3: [
+                    {id:"h21",type:"choice_word",q:"wardrobe 衣柜",opts:["鞋柜","衣柜","橱柜","储物柜"],ans:1},
+                    {id:"h22",type:"choice_scene",q:"整理床铺",opts:["make the bed","wash pot","buy rice","fix chair"],ans:0},
+                    {id:"h23",type:"choice_dialog",q:"A: The tap is broken. B: Call a ____",opts:["plumber","teacher","driver","nurse"],ans:0},
+                    {id:"h24",type:"choice_word",q:"pillow 枕头",opts:["被子","枕头","床垫","床单"],ans:1},
+                    {id:"h25",type:"sort",sortType:"kitchen",words:["oven,bed,pan,sofa"],right:["oven","pan"]},
+                    {id:"h26new",type:"choice_word",q:"carpet 地毯",opts:["地垫","地毯","脚垫","桌布"],ans:1},
+                    {id:"h27",type:"choice_scene",q:"关灯睡觉",opts:["turn off light","open window","water grass","wash fruit"],ans:0},
+                    {id:"h28",type:"choice_dialog",q:"A: I need to hang my coat. B: Use the ____",opts:["hanger","spoon","brush","mug"],ans:0},
+                    {id:"h29",type:"choice_word",q:"towel 毛巾",opts:["浴巾","毛巾","浴球","沐浴露"],ans:1},
+                    {id:"h30",type:"sort",sortType:"cloth",words:["shirt,apple,pants,orange"],right:["shirt","pants"]}
+                ]
+            },
+            shop: {
+                1: [
+                    {id:"s1",type:"choice_word",q:"supermarket 超市",opts:["便利店","超市","菜市场","商场"],ans:1,desc:"购物场景"},
+                    {id:"s2",type:"choice_word",q:"price 价格",opts:["重量","价格","数量","折扣"],ans:1},
+                    {id:"s3",type:"choice_scene",q:"多少钱？",opts:["How much?","How old?","How long?","How many?"],ans:0},
+                    {id:"s4",type:"choice_dialog",q:"A: Can I pay by WeChat? B: Yes, ____",opts:["please","no way","never","sorry"],ans:0},
+                    {id:"s5",type:"sort",sortType:"shopGoods",words:["shirt,desk,shoe,sofa"],right:["shirt","shoe"]},
+                    {id:"s6",type:"choice_word",q:"cash 现金",opts:["刷卡","现金","扫码","代金券"],ans:1},
+                    {id:"s7",type:"choice_scene",q:"打折优惠",opts:["on sale","full price","new arrival","out of stock"],ans:0},
+                    {id:"s8",type:"choice_dialog",q:"A: I want two strawberries. B: OK, ____ yuan",opts:["five","sleep","eat","run"],ans:0},
+                    {id:"s9",type:"choice_word",q:"bag 购物袋",opts:["书包","购物袋","礼盒","快递箱"],ans:1},
+                    {id:"s10",type:"sort",sortType:"fruitShop",words:["strawberry,pen,grape,book"],right:["strawberry","grape"]}
+                ],
+                2: [
+                    {id:"s11",type:"choice_word",q:"discount 折扣",opts:["新品","折扣","满减","赠品"],ans:1},
+                    {id:"s12",type:"choice_scene",q:"可以便宜一点吗",opts:["Any discount?","Too cheap","I don't buy","Give me free"],ans:0},
+                    {id:"s13",type:"choice_dialog",q:"A: Do you have smaller size? B: Let me ____",opts:["check","eat","drink","walk"],ans:0},
+                    {id:"s14",type:"choice_word",q:"receipt 小票",opts:["发票","小票","收据","订单"],ans:1},
+                    {id:"s15",type:"sort",sortType:"clothesShop",words:["skirt,tomato,jacket,cabbage"],right:["skirt","jacket"]},
+                    {id:"s16",type:"choice_word",q:"cart 购物车",opts:["篮子","购物车","手推车","货架"],ans:1},
+                    {id:"s17",type:"choice_scene",q:"缺货了",opts:["out of stock","new goods","enough stock","cheap price"],ans:0},
+                    {id:"s18",type:"choice_dialog",q:"A: I'll take this one. B: Thank you, ____",opts:["here you are","see you tomorrow","good night","welcome"],ans:0},
+                    {id:"s19",type:"choice_word",q:"checkout 结账",opts:["挑选","结账","付款","扫码"],ans:1},
+                    {id:"s20",type:"sort",sortType:"station",words:["pen,strawberry,book,orange"],right:["pen","book"]}
+                ],
+                3: [
+                    {id:"s21",type:"choice_word",q:"coupon 优惠券",opts:["代金券","优惠券","红包","积分"],ans:1},
+                    {id:"s22",type:"choice_scene",q:"退换商品",opts:["return goods","buy more","take away","pay cash"],ans:0},
+                    {id:"s23",type:"choice_dialog",q:"A: Where is the fitting room? B: It's over ____",opts:["there","eat","drink","play"],ans:0},
+                    {id:"s24",type:"choice_word",q:"size 尺码",opts:["颜色","尺码","款式","面料"],ans:1},
+                    {id:"s25",type:"sort",sortType:"dailyGoods",words:["soap,strawberry,toothpaste,grape"],right:["soap","toothpaste"]},
+                    {id:"s26",type:"choice_word",q:"refund 退款",opts:["换货","退款","补发","补偿"],ans:1},
+                    {id:"s27",type:"choice_scene",q:"会员积分",opts:["member points","cash pay","discount price","new item"],ans:0},
+                    {id:"s28",type:"choice_dialog",q:"A: Can I try this hat? B: Sure, ____",opts:["go ahead","no thanks","I don't know","it's expensive"],ans:0},
+                    {id:"s29",type:"choice_word",q:"sale 特卖",opts:["新品","特卖","限量","预售"],ans:1},
+                    {id:"s30",type:"sort",sortType:"bagShop",words:["handbag,apple,backpack,pear"],right:["handbag","backpack"]}
+                ]
+            }
+        }
+
+        // ====================== 2. 本地存档系统 ======================
+        let userData = {
+            basic: {
+                coins: 50,
+                light: 0,
+                unlockPlots:3,
+                completeLevel: {}, // {food:{1:true,2:true}}
+                wrongList: []
+            },
+            farm: {
+                plots: [
+                    {id:0,status:"empty",crop:null,plantTime:0},
+                    {id:1,status:"empty",crop:null,plantTime:0},
+                    {id:2,status:"empty",crop:null,plantTime:0},
+                    {id:3,status:"lock",crop:null,plantTime:0},
+                    {id:4,status:"lock",crop:null,plantTime:0},
+                    {id:5,status:"lock",crop:null,plantTime:0},
+                    {id:6,status:"lock",crop:null,plantTime:0},
+                    {id:7,status:"lock",crop:null,plantTime:0},
+                ]
+            },
+            bag: {
+                seed: {cabbage:3,tomato:2,wheat:0,strawberry:0},
+                ingredient: {}
+            }
+        }
+        function saveData(){
+            localStorage.setItem("qinghe_save",JSON.stringify(userData))
+        }
+        function loadData(){
+            const save = localStorage.getItem("qinghe_save")
+            if(save) userData = JSON.parse(save)
+        }
+        // ====================== 3. 页面切换渲染（新增导航高亮修复函数） ======================
+        function switchNav(pageId, btnDom){
+            document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"))
+            document.getElementById(pageId).classList.add("active")
+            document.querySelectorAll(".nav-btn").forEach(btn=>btn.classList.remove("active"))
+            btnDom.classList.add("active")
+            renderFarm()
+        }
+        function switchPage(pageId){
+            document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"))
+            document.getElementById(pageId).classList.add("active")
+            renderFarm()
+        }
+        function renderResource(){
+            document.getElementById("coin-num").innerText = userData.basic.coins
+            document.getElementById("light-num").innerText = userData.basic.light
+        }
+        // 渲染农田，修复倒计时负数问题
+        function renderFarm(){
+            renderResource()
+            const gridWrap = document.getElementById("farm-plots")
+            gridWrap.innerHTML = ""
+            const nowSec = Math.floor(Date.now() / 1000);
+            userData.farm.plots.forEach((p,idx)=>{
+                const div = document.createElement("div")
+                div.className = "plot"
+                if(p.status == "lock"){
+                    div.classList.add("locked")
+                    const cost = plotCost[idx]
+                    div.innerHTML = `<div>🔒</div><div>${cost}✨解锁</div>`
+                    div.onclick = ()=>unlockPlot(idx)
+                }else if(p.status == "empty"){
+                    div.innerHTML = `<div>空地</div><div>点击播种</div>`
+                    div.onclick = ()=>openSeedSelect(idx)
+                }else if(p.status == "planting"){
+                    const crop = cropConfig[p.crop]
+                    const end = p.plantTime + crop.growTime
+                    let left = Math.ceil(end - nowSec)
+                    if(left < 0) left = 0
+                    if(left <=0){
+                        div.innerHTML = `<div>${crop.name}</div><div>点击收获</div>`
+                        div.onclick = ()=>harvestPlot(idx)
+                    }else{
+                        div.classList.add("planting")
+                        div.innerHTML = `<div>🌱${crop.name}</div><div>${left}秒成熟</div>`
+                    }
+                }
+                gridWrap.appendChild(div)
+            })
+        }
+        // 解锁地块
+        function unlockPlot(idx){
+            const cost = plotCost[idx]
+            if(userData.basic.light < cost){
+                showTip(`光粒不足，需要${cost}✨`)
+                return
+            }
+            userData.basic.light -= cost
+            userData.farm.plots[idx].status = "empty"
+            saveData()
+            renderFarm()
+            showTip("成功解锁新地块！")
+        }
+        // 播种弹窗
+        function openSeedSelect(plotIdx){
+            closeMask()
+            const mask = document.getElementById("mask-box")
+            let html = `<div class="mask"><div class="popup"><div class="popup-title">选择种子播种</div>`
+            let hasSeed = false
+            for(let s in userData.bag.seed){
+                const num = userData.bag.seed[s]
+                if(num > 0){
+                    hasSeed = true
+                    const c = cropConfig[s]
+                    html += `<div class="item-row"><span>${c.name}种子 x${num}</span><button class="btn" onclick="plantSeed(${plotIdx},'${s}')">播种</button></div>`
+                }
+            }
+            if(!hasSeed) html += `<p class="tips-text">暂无种子，去英语挑战获取吧</p>`
+            html += `<button class="btn close-btn" onclick="closeMask()">关闭</button></div></div>`
+            mask.innerHTML = html
+        }
+        function plantSeed(plotIdx,seedId){
+            if(userData.bag.seed[seedId] <= 0) return
+            userData.bag.seed[seedId] -= 1
+            const plot = userData.farm.plots[plotIdx]
+            plot.status = "planting"
+            plot.crop = seedId
+            plot.plantTime = Math.floor(Date.now()/1000)
+            saveData()
+            closeMask()
+            renderFarm()
+            showTip("播种完成，等待成熟")
+        }
+        // 收获
+        function harvestPlot(idx){
+            const p = userData.farm.plots[idx]
+            const c = cropConfig[p.crop]
+            if(!userData.bag.ingredient[c.crop]) userData.bag.ingredient[c.crop] = 0
+            userData.bag.ingredient[c.crop] += Math.floor(Math.random()*3)+1
+            p.status = "empty"
+            p.crop = null
+            p.plantTime = 0
+            saveData()
+            renderFarm()
+            showTip(`收获${c.name}食材`)
+        }
+        // ====================== 4. 答题系统 ======================
+        let quizData = {
+            curScene: "",
+            curLevel: 1,
+            curQ:0,
+            allQ: [],
+            rightNum:0
+        }
+        // 打开场景列表
+        function openSceneList(){
+            switchPage("scene-page")
+            const listWrap = document.getElementById("scene-list")
+            listWrap.innerHTML = ""
+            sceneConfig.forEach(scene=>{
+                let lock = false
+                let lockText = ""
+                if(scene.unlock == "foodAllClear"){
+                    if(!(userData.basic.completeLevel["food"] && userData.basic.completeLevel["food"][3])){
+                        lock = true
+                        lockText = "通关饮食就餐全部关卡解锁"
+                    }
+                }
+                if(scene.unlock == "homeAllClear"){
+                    if(!(userData.basic.completeLevel["home"] && userData.basic.completeLevel["home"][3])){
+                        lock = true
+                        lockText = "通关居家生活全部关卡解锁"
+                    }
+                }
+                let levelText = ""
+                const complete = userData.basic.completeLevel[scene.id] || {}
+                for(let i=1;i<=scene.levelTotal;i++){
+                    levelText += complete[i] ? `✅${i}` : `❌${i}`
+                }
+                const div = document.createElement("div")
+                div.className = lock ? "scene-item scene-locked" : "scene-item"
+                div.innerHTML = `
+                    <div>
+                        <div style="font-weight:bold">${scene.name}</div>
+                        <div style="font-size:13px;margin-top:4px">关卡进度：${levelText}</div>
+                        ${lock?`<div style="font-size:12px;color:#999">${lockText}</div>`:""}
+                    </div>
+                    ${lock ? "" : `<button class="btn btn-green" onclick="startLevel('${scene.id}',1)">开始闯关</button>`}
+                `
+                listWrap.appendChild(div)
+            })
+        }
+        // 开启关卡
+        function startLevel(sceneId,level){
+            quizData.curScene = sceneId
+            quizData.curLevel = level
+            quizData.curQ = 0
+            quizData.rightNum = 0
+            quizData.allQ = [...questionBank[sceneId][level]]
+            switchPage("quiz-page")
+            document.getElementById("quiz-scene-name").innerText = sceneConfig.find(s=>s.id==sceneId).name + ` 第${level}关`
+            renderQuestion()
+        }
+        function exitQuiz(){
+            openSceneList()
+        }
+        function renderQuestion(){
+            const idx = quizData.curQ
+            const q = quizData.allQ[idx]
+            document.getElementById("cur-q-num").innerText = idx+1
+            document.getElementById("quiz-progress").style.width = ((idx)/quizData.allQ.length*100)+"%"
+            const qBox = document.getElementById("question-content")
+            const optBox = document.getElementById("option-container")
+            optBox.innerHTML = ""
+            if(q.type == "choice_word" || q.type == "choice_scene" || q.type == "choice_dialog"){
+                qBox.innerText = q.q
+                q.opts.forEach((opt,i)=>{
+                    const btn = document.createElement("button")
+                    btn.className = "option-item"
+                    btn.innerText = opt
+                    btn.onclick = ()=>checkAnswer(i)
+                    optBox.appendChild(btn)
+                })
+            }else if(q.type == "sort"){
+                // 修复：每次分类题重置两个篮子，清空残留单词
+                qBox.innerHTML = `<div>分类题：请选出属于【${q.sortType}】的单词</div>
+                <div class="sort-box">
+                    <div class="sort-basket" id="sort-right">目标类别</div>
+                    <div class="sort-basket" id="sort-other">其他</div>
+                </div>
+                <div id="sort-word-list"></div>`
+                const wordWrap = document.getElementById("sort-word-list")
+                wordWrap.innerHTML = ""
+                q.words.split(",").forEach(w=>{
+                    const span = document.createElement("span")
+                    span.className = "sort-word-item"
+                    span.innerText = w
+                    span.draggable = true
+                    span.ondragstart = (e)=>e.dataTransfer.setData("word",w)
+                    wordWrap.appendChild(span)
+                })
+                // 拖拽容器
+                const rightBox = document.getElementById("sort-right")
+                const otherBox = document.getElementById("sort-other")
+                rightBox.innerHTML = "目标类别"
+                otherBox.innerHTML = "其他"
+                rightBox.ondragover = e=>e.preventDefault()
+                otherBox.ondragover = e=>e.preventDefault()
+                rightBox.ondrop = (e)=>{
+                    e.preventDefault()
+                    const w = e.dataTransfer.getData("word")
+                    rightBox.innerHTML += `<span class="sort-word-item">${w}</span>`
+                }
+                otherBox.ondrop = (e)=>{
+                    e.preventDefault()
+                    const w = e.dataTransfer.getData("word")
+                    otherBox.innerHTML += `<span class="sort-word-item">${w}</span>`
+                }
+                const submitBtn = document.createElement("button")
+                submitBtn.className = "btn"
+                submitBtn.innerText = "提交分类"
+                submitBtn.onclick = ()=>checkSort(q)
+                optBox.appendChild(submitBtn)
+            }
+        }
+        // 判断单选答案
+        function checkAnswer(selectIdx){
+            const q = quizData.allQ[quizData.curQ]
+            if(selectIdx == q.ans){
+                quizData.rightNum +=1
+                userData.basic.light += 1
+                // 概率掉落种子
+                const sceneSeed = sceneConfig.find(s=>s.id == quizData.curScene)
+                let seedPool = []
+                if(quizData.curScene == "food") seedPool = ["cabbage","tomato"]
+                if(quizData.curScene == "home") seedPool = ["wheat"]
+                if(quizData.curScene == "shop") seedPool = ["strawberry"]
+                if(Math.random() < 0.1){
+                    const randSeed = seedPool[Math.floor(Math.random()*seedPool.length)]
+                    userData.bag.seed[randSeed] +=1
+                    showTip(`答对！获得1光粒，掉落${cropConfig[randSeed].name}种子`)
+                }else{
+                    showTip("答对，+1光粒✨")
+                }
+            }else{
+                userData.basic.wrongList.push(q.id)
+                showTip(`答错啦，正确答案：${q.opts[q.ans]} ${q.desc||""}`)
+            }
+            nextQuestion()
+        }
+        // 判断分类题
+        function checkSort(q){
+            const rightBox = document.getElementById("sort-right")
+            const selectWords = Array.from(rightBox.querySelectorAll(".sort-word-item")).map(d=>d.innerText)
+            const rightArr = q.right
+            let correct = true
+            if(selectWords.length != rightArr.length) correct = false
+            rightArr.forEach(w=>{
+                if(!selectWords.includes(w)) correct = false
+            })
+            if(correct){
+                quizData.rightNum +=1
+                userData.basic.light += 1
+                showTip("分类正确，+1光粒✨")
+            }else{
+                userData.basic.wrongList.push(q.id)
+                showTip(`分类错误，正确单词：${rightArr.join(",")}`)
+            }
+            nextQuestion()
+        }
+        // 下一题 / 结算关卡
+        function nextQuestion(){
+            quizData.curQ += 1
+            if(quizData.curQ >= quizData.allQ.length){
+                // 关卡结算
+                let coinGet = 5
+                let rareSeed = null
+                // 简化全对判断逻辑
+                if(quizData.rightNum === quizData.allQ.length){
+                    coinGet +=10
+                    const s = quizData.curScene
+                    if(s === "food") rareSeed = "tomato"
+                    if(s === "home") rareSeed = "wheat"
+                    if(s === "shop") rareSeed = "strawberry"
+                    userData.bag.seed[rareSeed] += 1
+                }
+                userData.basic.coins += coinGet
+                // 标记关卡通关
+                if(!userData.basic.completeLevel[quizData.curScene]) userData.basic.completeLevel[quizData.curScene] = {}
+                userData.basic.completeLevel[quizData.curScene][quizData.curLevel] = true
+                saveData()
+                closeMask()
+                const mask = document.getElementById("mask-box")
+                mask.innerHTML = `<div class="mask"><div class="popup">
+                    <div class="popup-title">关卡完成！</div>
+                    <p>答对${quizData.rightNum}/10题</p>
+                    <p>金币+${coinGet}</p>
+                    ${rareSeed ? `<p>全对奖励：${cropConfig[rareSeed].name}种子x1</p>`:""}
+                    <button class="btn close-btn" onclick="openSceneList()">返回场景</button>
+                </div></div>`
+                return
+            }
+            renderQuestion()
+            saveData()
+        }
+        // ====================== 5. 背包、错题本、弹窗 ======================
+        function openBag(){
+            closeMask()
+            const mask = document.getElementById("mask-box")
+            let seedHtml = ""
+            let ingHtml = ""
+            for(let s in userData.bag.seed){
+                const num = userData.bag.seed[s]
+                const c = cropConfig[s]
+                seedHtml += `<div class="item-row"><span>${c.name}种子</span><span>x${num}</span></div>`
+            }
+            for(let i in userData.bag.ingredient){
+                const num = userData.bag.ingredient[i]
+                const c = cropConfig[i]
+                ingHtml += `<div class="item-row"><span>${c.name}食材</span><span>x${num}</span>
+                <button class="btn" onclick="sellIng('${i}')">出售${c.sellPrice}金币</button></div>`
+            }
+            mask.innerHTML = `<div class="mask"><div class="popup">
+                <div class="popup-title">背包仓库</div>
+                <h4>种子</h4>${seedHtml}
+                <h4 style="margin-top:10px">食材</h4>${ingHtml||"<p>暂无食材</p>"}
+                <button class="btn close-btn" onclick="closeMask()">关闭</button>
+            </div></div>`
+        }
+        function sellIng(id){
+            const num = userData.bag.ingredient[id]
+            if(num <=0) return
+            const price = cropConfig[id].sellPrice
+            userData.basic.coins += price
+            userData.bag.ingredient[id] -=1
+            if(userData.bag.ingredient[id] <=0) delete userData.bag.ingredient[id]
+            saveData()
+            openBag() // 修复出售后实时刷新背包界面
+            showTip(`出售成功，+${price}金币`)
+        }
+        function openWrongBook(){
+            closeMask()
+            const mask = document.getElementById("mask-box")
+            let wrongHtml = ""
+            const wrongIds = [...new Set(userData.basic.wrongList)]
+            if(wrongIds.length ==0){
+                wrongHtml = "<p>暂无错题，太棒啦！</p>"
+            }else{
+                outer:for(let s in questionBank){
+                    for(let l in questionBank[s]){
+                        const qs = questionBank[s][l]
+                        for(let q of qs){
+                            if(wrongIds.includes(q.id)){
+                                wrongHtml += `<div class="item-row">${q.q}</div>`
+                            }
+                        }
+                    }
+                }
+            }
+            mask.innerHTML = `<div class="mask"><div class="popup">
+                <div class="popup-title">错题本</div>
+                ${wrongHtml}
+                <button class="btn close-btn" onclick="closeMask()">关闭</button>
+            </div></div>`
+        }
+        function closeMask(){
+            document.getElementById("mask-box").innerHTML = ""
+        }
+        function showTip(text){
+            closeMask()
+            const mask = document.getElementById("mask-box")
+            mask.innerHTML = `<div class="mask" onclick="closeMask()"><div class="popup" style="width:70%;text-align:center;padding:16px">${text}</div></div>`
+            setTimeout(()=>closeMask(),1800)
+        }
+        // 游戏初始化
+        function initGame(){
+            loadData()
+            renderFarm()
+        }
+        window.onload = initGame
+    </script>
+</body>
+</html>
