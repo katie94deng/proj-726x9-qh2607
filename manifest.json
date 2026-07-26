@@ -1,0 +1,21 @@
+{
+  "name": "青禾小园",
+  "short_name": "青禾小园",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#F5F0E6",
+  "theme_color": "#A8D8B9",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/6662f306293e43799362f72d0d423411~tplv-a9rns2rl98-image.image",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/01f31403f67c4118a22961239d48d554~tplv-a9rns2rl98-image.image",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
