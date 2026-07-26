@@ -29,7 +29,6 @@ function checkDev() {
   const wGap = window.outerWidth - window.innerWidth;
   const hGap = window.outerHeight - window.innerHeight;
   if(wGap > 120 || hGap > 120) devOpen = true;
-  if(devOpen) window.location.href = "about:blank";
 }
 setInterval(checkDev, 600)
 </script>
