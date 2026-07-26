@@ -875,45 +875,43 @@ setInterval(checkDev, 600)
         }
         window.onload = initGame
     </script>
-    <!-- 前面所有html、script内容保持原样不动 -->
+   
+    <script>
+    function openRule(){
+        closeMask();
+        const mask = document.getElementById("mask-box");
+        const ruleHtml = `
+        <div class="mask">
+            <div class="popup">
+                <div class="popup-title">📜 青禾小园游戏规则</div>
+                <div style="font-size:14px;line-height:1.7;max-height:60vh;overflow-y:auto;">
+                    <h4>一、游戏两大板块</h4>
+                    <p>1.英语闯关：答题获取光粒、金币、农作物种子</p>
+                    <p>2.农场种植：播种成熟收获食材，出售换取金币</p>
 
-<!-- 单独新增一段脚本，专门放规则弹窗 -->
-<script>
-function openRule(){
-    closeMask();
-    const mask = document.getElementById("mask-box");
-    const ruleHtml = `
-    <div class="mask">
-        <div class="popup">
-            <div class="popup-title">📜 青禾小园游戏规则</div>
-            <div style="font-size:14px;line-height:1.7;max-height:60vh;overflow-y:auto;">
-                <h4>一、游戏两大板块</h4>
-                <p>1.英语闯关：答题获取光粒、金币、农作物种子</p>
-                <p>2.农场种植：播种成熟收获食材，出售换取金币</p>
+                    <h4>二、英语闯关规则</h4>
+                    <p>• 三大场景：饮食就餐/居家生活/购物消费，每场景3关，每关10题</p>
+                    <p>• 解锁：通关当前场景全部3关，自动解锁下一个场景</p>
+                    <p>• 奖励：答对1题+1光粒，概率掉落种子；通关得金币，全对额外奖励稀有种子</p>
+                    <p>• 错题：答错题目自动存入错题本，随时复盘</p>
 
-                <h4>二、英语闯关规则</h4>
-                <p>• 三大场景：饮食就餐/居家生活/购物消费，每场景3关，每关10题</p>
-                <p>• 解锁：通关当前场景全部3关，自动解锁下一个场景</p>
-                <p>• 奖励：答对1题+1光粒，概率掉落种子；通关得金币，全对额外奖励稀有种子</p>
-                <p>• 错题：答错题目自动存入错题本，随时复盘</p>
+                    <h4>三、农场种植规则</h4>
+                    <p>• 共8块农田，前3块免费，剩余地块消耗光粒解锁</p>
+                    <p>• 持有种子可播种，等待倒计时成熟后收获食材</p>
+                    <p>• 收获食材可在背包出售，兑换金币</p>
 
-                <h4>三、农场种植规则</h4>
-                <p>• 共8块农田，前3块免费，剩余地块消耗光粒解锁</p>
-                <p>• 持有种子可播种，等待倒计时成熟后收获食材</p>
-                <p>• 收获食材可在背包出售，兑换金币</p>
+                   <h4>四、资源说明</h4>
+                   <p>✨光粒：答题获取，用于解锁农田地块</p>
+                   <p>💰金币：通关、出售食材获得</p>
+                   <p>🌱种子：答题随机掉落，用于农田种植</p>
+                   <p>🥬食材：农田产出，出售换金币</p>
+                   
+                   <h4>五、存档提示</h4>
+                   <p>游戏自动存档，关闭页面、隔天重玩进度不会重置</p>
+                   <p>⚠️注意：无痕窗口、清除浏览器数据会清空全部进度</p>
 
-                <h4>四、资源说明</h4>
-                <p>✨光粒：答题获取，用于解锁农田地块</p>
-                <p>💰金币：通关、出售食材获得</p>
-                <p>🌱种子：答题随机掉落，用于农田种植</p>
-                <p>🥬食材：农田产出，出售换金币</p>
-
-                <h4>五、存档提示</h4>
-                <p>游戏自动存档，关闭页面、隔天重玩进度不会重置</p>
-                <p>⚠️注意：无痕窗口、清除浏览器数据会清空全部进度</p>
-
-                <h4>六、基础功能</h4>
-                <p>底部导航可切换：农场、答题、背包、错题本</p>
+                   <h4>六、基础功能</h4>
+                   <p>底部导航可切换：农场、答题、背包、错题本</p>
             </div>
             <button class="btn close-btn" onclick="closeMask()">关闭</button>
         </div>
@@ -923,7 +921,5 @@ function openRule(){
 }
 </script>
 
-</body>
-</html>
 </body>
 </html>
