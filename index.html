@@ -1,811 +1,910 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>青禾小园</title>
-    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoi青禾小园Iiwic2hvcnRfbmFtZSI6IuW8teW8teS4reWbvSIsInN0YXJ0X3VybCI6Ii8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjZmNmN2UwIiwidGhlbWVfY29sb3IiOiIjY25lZGMwIn0=">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: system-ui, -apple-system, sans-serif;
-        }
-        body {
-            background-color: #f8f3e6;
-            color: #4a4238;
-            min-height: 100vh;
-            max-width: 600px;
-            margin: 0 auto;
-            overflow-x: hidden;
-        }
-        .header-bar {
-            background: #c5e4cc;
-            padding: 16px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom-left-radius: 16px;
-            border-bottom-right-radius: 16px;
-        }
-        .header-title {
-            font-size: 22px;
-            font-weight: 600;
-        }
-        .resource-box {
-            display: flex;
-            gap: 20px;
-            font-size: 18px;
-        }
-        .rule-btn {
-            background: #f8e8a6;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 12px;
-            font-size: 17px;
-            cursor: pointer;
-        }
-        .page-container {
-            padding: 20px;
-            padding-bottom: 100px;
-        }
-        .page-title {
-            font-size: 28px;
-            margin-bottom: 24px;
-            font-weight: bold;
-        }
-        .farm-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 14px;
-        }
-        .farm-tile {
-            background: repeating-linear-gradient(0deg, #b99d7a 0px,#b99d7a 5px,#a88c69 5px,#a88c69 10px);
-            border-radius: 14px;
-            aspect-ratio: 1 / 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 10px;
-            color: #fff;
-            box-shadow: inset 0 2px 6px rgba(0,0,0,0.15);
-            cursor: pointer;
-        }
-        .tile-locked {
-            filter: brightness(0.75);
-        }
-        .tile-text {
-            text-align: center;
-            font-size: 15px;
-        }
-        .crop-icon{
-            font-size:42px;
-            margin-bottom:8px;
-        }
-        .tab-nav {
-            position: fixed;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: min(100%, 600px);
-            display: flex;
-            background: #fff;
-            box-shadow: 0 -2px 10px #00000015;
-        }
-        .tab-item {
-            flex: 1;
-            text-align: center;
-            padding: 14px 0;
-            font-size: 18px;
-            border: none;
-            background: transparent;
-            cursor: pointer;
-        }
-        .tab-active {
-            background: #e2f2e6;
-            border-radius: 16px 16px 0 0;
-        }
-        .mask {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-            z-index: 99;
-        }
-        .modal {
-            background: #f8f3e6;
-            border-radius: 16px;
-            width: 100%;
-            max-width: 520px;
-            max-height: 85vh;
-            overflow-y: auto;
-            padding: 24px;
-        }
-        .modal h3 {
-            text-align: center;
-            margin-bottom:16px;
-            font-size:22px;
-        }
-        .modal-desc{
-            font-size:16px;
-            line-height:1.6;
-            text-align:center;
-            margin-bottom:20px;
-        }
-        table {
-            width:100%;
-            border-collapse: collapse;
-            margin:12px 0;
-        }
-        td,th {
-            border:1px solid #c2b8a5;
-            padding:8px 4px;
-            text-align:center;
-            font-size:14px;
-        }
-        th {
-            background:#e9e2d3;
-        }
-        .modal-close {
-            width:100%;
-            margin-top:16px;
-            padding:10px;
-            border:none;
-            border-radius:12px;
-            background:#c5e4cc;
-            font-size:17px;
-            cursor: pointer;
-        }
-        .hide {
-            display: none !important;
-        }
-        .scene-item {
-            padding:14px;
-            background:#fff;
-            border-radius:12px;
-            margin-bottom:12px;
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            cursor: pointer;
-        }
-        .scene-lock {
-            opacity:0.55;
-            cursor:not-allowed;
-        }
-        .question-box {
-            background:#fff;
-            padding:18px;
-            border-radius:14px;
-            margin: 20px 0;
-        }
-        .option-btn {
-            display:block;
-            width:100%;
-            margin:8px 0;
-            padding:12px;
-            border-radius:10px;
-            border:1px solid #ccc;
-            background:#fff;
-            font-size:16px;
-            cursor: pointer;
-        }
-        .back-btn {
-            border:none;
-            background:#ddd;
-            padding:8px 14px;
-            border-radius:10px;
-            margin-bottom:12px;
-            cursor: pointer;
-        }
-        .goods-item{
-            background:#fff;
-            padding:14px;
-            border-radius:12px;
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            margin-bottom:12px;
-            font-size:17px;
-        }
-        .buy-btn{
-            padding:8px 14px;
-            background:#c5e4cc;
-            border:none;
-            border-radius:10px;
-            font-size:15px;
-            cursor: pointer;
-        }
-        .seed-select-item{
-            width:100%;
-            padding:12px;
-            margin:6px 0;
-            border:none;
-            border-radius:10px;
-            background:#fff;
-            font-size:16px;
-            cursor:pointer;
-        }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>青禾小园</title>
+<link rel="manifest" href="manifest.json">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
+body{
+  background:#f8f4e9;
+  color:#4a4238;
+  min-height:100vh;
+  padding-bottom:72px;
+  overflow-x:hidden;
+}
+header{
+  background:#efe8d7;
+  padding:14px 18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:0 2px 8px rgba(0,0,0,0.12);
+  position:sticky;
+  top:0;
+  z-index:90;
+}
+header h3{
+  font-weight:600;
+  color:#594f40;
+}
+.resource-bar span{
+  background:#ffffff;
+  padding:7px 12px;
+  border-radius:999px;
+  margin-left:6px;
+  font-size:14px;
+  box-shadow:0 1px 3px rgba(0,0,0,0.08);
+}
+.container{padding:18px;}
+
+/* 农场布局 */
+.farm-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  margin-top:14px;
+}
+.land-item{
+  aspect-ratio:1/1;
+  background:#d6cbb7;
+  border-radius:14px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  font-size:34px;
+  position:relative;
+  border:2px solid #c2b49e;
+  transition:0.2s;
+}
+.land-item:active{transform:scale(0.96);}
+.land-item.lock{
+  background:#b8afa0;
+  opacity:0.72;
+}
+.land-text{font-size:12px;margin-top:4px;color:#555;}
+.grow-tip{font-size:11px;color:#6b6254;margin-top:3px;}
+.land-mask{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,0.45);
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  font-size:13px;
+  text-align:center;
+  padding:6px;
+}
+
+/* 底部导航 */
+.tab-bar{
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  height:68px;
+  background:#efe8d7;
+  display:flex;
+  border-top:1px solid #ddcfb7;
+  z-index:99;
+}
+.tab-item{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  font-size:13px;
+  color:#666;
+}
+.tab-item.active{color:#709967;font-weight:bold;}
+.tab-item > span:first-child{font-size:20px;margin-bottom:2px;}
+
+/* 弹窗通用 */
+.pop-wrap{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.55);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:100;
+  padding:16px;
+}
+.pop-box{
+  width:100%;
+  max-width:440px;
+  background:#f8f4e9;
+  border-radius:18px;
+  overflow:hidden;
+  position:relative;
+}
+.pop-close{
+  position:absolute;
+  right:14px;
+  top:12px;
+  font-size:24px;
+  z-index:2;
+  cursor:pointer;
+  width:32px;height:32px;
+  display:flex;align-items:center;justify-content:center;
+  color:#777;
+}
+.pop-content{padding:24px 22px;}
+.pop-content h4{margin-bottom:16px;font-size:17px;color:#4a4238;}
+.btn{
+  display:block;
+  width:100%;
+  padding:13px;
+  margin:7px 0;
+  border:none;
+  border-radius:12px;
+  background:#86ad7c;
+  color:#ffffff;
+  font-size:15px;
+  cursor:pointer;
+  transition:0.15s;
+}
+.btn:active{opacity:0.88;}
+.btn.secondary{background:#b8a993;}
+.btn.sell{background:#e29469;}
+
+/* 页面容器 */
+.page{display:none;}
+.page.active{display:block;}
+
+/* 答题模块 */
+.question-card{
+  background:#fff;
+  border-radius:14px;
+  padding:20px;
+  margin-bottom:14px;
+  box-shadow:0 1px 6px rgba(0,0,0,0.06);
+}
+.progress-text{
+  text-align:center;
+  margin-bottom:12px;
+  color:#666;
+}
+.q-title{font-size:16px;line-height:1.6;margin-bottom:8px;}
+.q-trans{color:#707070;font-size:14px;margin-bottom:12px;}
+.opt-btn{
+  width:100%;
+  padding:13px;
+  margin:6px 0;
+  border:1px solid #dcd2bf;
+  background:#fff;
+  border-radius:12px;
+  text-align:left;
+  font-size:15px;
+  cursor:pointer;
+}
+.opt-btn:active{background:#efe8d7;}
+.opt-btn.disabled{opacity:0.6;pointer-events:none;}
+.next-btn{
+  margin-top:16px;
+  background:#6c9c61;
+}
+.scene-item{
+  padding:16px;
+  background:#fff;
+  border-radius:14px;
+  margin:10px 0;
+  box-shadow:0 1px 5px rgba(0,0,0,0.05);
+}
+.scene-item.lock{opacity:0.62}
+
+/* 仓库样式 */
+.warehouse-tab{
+  display:flex;
+  gap:8px;
+  margin-bottom:14px;
+}
+.warehouse-tab button{
+  flex:1;
+  padding:10px;
+  border:1px solid #c2b49e;
+  background:#fff;
+  border-radius:10px;
+  font-size:14px;
+}
+.warehouse-tab button.active{
+  background:#86ad7c;
+  color:#fff;
+  border-color:#86ad7c;
+}
+.ware-item{
+  padding:14px;
+  background:#fff;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin:9px 0;
+  font-size:28px;
+}
+.item-left{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.item-info > b{font-size:15px;display:block;}
+.item-info > div{font-size:13px;color:#777;margin-top:2px;}
+.empty-text{
+  text-align:center;
+  padding:48px 12px;
+  color:#888;
+}
+
+/* 商店标签 */
+.shop-tab{
+  display:flex;
+  gap:8px;
+  margin-bottom:14px;
+}
+.shop-tab button{
+  flex:1;
+  padding:10px;
+  border:1px solid #c2b49e;
+  background:#fff;
+  border-radius:10px;
+  font-size:14px;
+}
+.shop-tab button.active{
+  background:#86ad7c;
+  color:#fff;
+  border-color:#86ad7c;
+}
+.shop-card{
+  padding:16px;
+  background:#fff;
+  border-radius:14px;
+  margin:10px 0;
+}
+</style>
 </head>
 <body>
-<div class="header-bar">
-    <div class="header-title">🏡 青禾小园</div>
-    <div class="resource-box">
-        <span>💰 <span id="gold">0</span></span>
-        <span>✨ <span id="light">0</span></span>
+<header>
+  <h3>青禾小园</h3>
+  <div class="resource-bar">
+    <span>✨光粒：<span id="light-grain">0</span></span>
+    <span>💰金币：<span id="coin">0</span></span>
+  </div>
+</header>
+
+<div class="container">
+  <!-- 农场页面 -->
+  <div class="page active" id="page-farm">
+    <h4>🏡我的田园</h4>
+    <div class="farm-grid" id="farm-container"></div>
+  </div>
+
+  <!-- 答题挑战页面 -->
+  <div class="page" id="page-study">
+    <h4 style="text-align:center;margin:12px 0;">📖答题挑战</h4>
+    <div id="scene-list"></div>
+    <div id="quiz-area" style="display:none;margin-top:16px;">
+      <div class="progress-text" id="quiz-progress"></div>
+      <div class="question-card">
+        <div class="q-title" id="q-content"></div>
+        <div class="q-trans" id="q-trans"></div>
+      </div>
+      <div id="option-box"></div>
+      <button class="btn next-btn" id="btn-next" style="display:none">下一题</button>
     </div>
-    <button class="rule-btn" onclick="openRuleModal()">规则</button>
+  </div>
+
+  <!-- 仓库页面 -->
+  <div class="page" id="page-warehouse">
+    <h4>📦仓库</h4>
+    <div class="warehouse-tab">
+      <button class="w-tab active" data-target="seed">🌱种子区</button>
+      <button class="w-tab" data-target="tool">🧪道具区</button>
+      <button class="w-tab" data-target="crop">🥬农产品区</button>
+    </div>
+    <div id="warehouse-content"></div>
+  </div>
+
+  <!-- 商店页面 -->
+  <div class="page" id="page-shop">
+    <h4>🌱商店</h4>
+    <div class="shop-tab">
+      <button class="s-tab active" data-target="seedShop">🌱种子区</button>
+      <button class="s-tab" data-target="toolShop">🧪道具区</button>
+    </div>
+    <div id="shop-content"></div>
+  </div>
 </div>
 
-<div class="page-container">
-    <div id="page-farm" class="page">
-        <h2 class="page-title">我的农田</h2>
-        <div class="farm-grid" id="farmContainer"></div>
-    </div>
-
-    <div id="page-quiz" class="page hide">
-        <h2 class="page-title">答题挑战</h2>
-        <div id="sceneList"></div>
-        <div id="quizArea" class="hide">
-            <button class="back-btn" onclick="exitQuiz()">← 返回场景</button>
-            <div class="question-box">
-                <div id="qText" style="font-size:18px;margin-bottom:12px;"></div>
-                <div id="optBox"></div>
-            </div>
-        </div>
-    </div>
-
-    <div id="page-bag" class="page hide">
-        <h2 class="page-title">我的背包</h2>
-        <h3 style="margin:10px 0;">种子库存</h3>
-        <div id="bagSeedList"></div>
-        <h3 style="margin:20px 0;">道具</h3>
-        <div class="goods-item">
-            <span>化肥</span>
-            <span>剩余：<span id="fertNum">0</span></span>
-        </div>
-    </div>
-
-    <div id="page-shop" class="page hide">
-        <h2 class="page-title">种子商店</h2>
-        <div id="shopSeedList"></div>
-        <h3 style="margin:20px 0;">道具商店</h3>
-        <div class="goods-item">
-            <span>化肥</span>
-            <button class="buy-btn" onclick="buyFert()">30💰购买</button>
-        </div>
-    </div>
+<!-- 弹窗通用容器 -->
+<div class="pop-wrap" id="pop">
+  <div class="pop-box">
+    <div class="pop-close" onclick="closePop()">×</div>
+    <div class="pop-content" id="pop-body"></div>
+  </div>
 </div>
 
-<div class="tab-nav">
-    <button class="tab-item tab-active" data-tab="farm">农场</button>
-    <button class="tab-item" data-tab="quiz">答题</button>
-    <button class="tab-item" data-tab="bag">背包</button>
-    <button class="tab-item" data-tab="shop">商店</button>
-</div>
-
-<div class="mask hide" id="globalModal">
-    <div class="modal">
-        <h3 id="modalTitle"></h3>
-        <div class="modal-desc" id="modalText"></div>
-        <button class="modal-close" id="modalConfirmBtn">下一题</button>
-    </div>
-</div>
-
-<div class="mask hide" id="ruleModal">
-    <div class="modal">
-        <h3>📖 游戏完整规则</h3>
-        <p style="margin:10px 0;">✨【光粒获取】<br>完成英语答题，答对1题 = 2光粒<br>⚠️全部题目完成后统一结算；场景一旦通关，再次挑战仅为练习，不再产出光粒</p>
-        <p>🌱【农田解锁】<br>1、2号田地：免费<br>3~6号田地：每块消耗5✨光粒解锁</p>
-        <table>
-            <tr>
-                <th>作物</th>
-                <th>生长时长</th>
-                <th>种子价格✨</th>
-                <th>出售金币💰</th>
-            </tr>
-            <tr>
-                <td>白菜</td>
-                <td>3分钟</td>
-                <td>5</td>
-                <td>15</td>
-            </tr>
-            <tr>
-                <td>胡萝卜</td>
-                <td>6分钟</td>
-                <td>5</td>
-                <td>25</td>
-            </tr>
-            <tr>
-                <td>番茄</td>
-                <td>9分钟</td>
-                <td>10</td>
-                <td>35</td>
-            </tr>
-            <tr>
-                <td>生菜</td>
-                <td>12分钟</td>
-                <td>15</td>
-                <td>45</td>
-            </tr>
-            <tr>
-                <td>黄瓜</td>
-                <td>15分钟</td>
-                <td>20</td>
-                <td>55</td>
-            </tr>
-            <tr>
-                <td>小麦</td>
-                <td>20分钟</td>
-                <td>25</td>
-                <td>65</td>
-            </tr>
-            <tr>
-                <td>草莓</td>
-                <td>20分钟</td>
-                <td>25</td>
-                <td>75</td>
-            </tr>
-        </table>
-        <p style="margin:12px 0;">🧪化肥：30金币一袋，一块农田只能使用一次，缩短40%成熟时间</p>
-        <p>💡小贴士：光粒无法购买化肥，金币不能用于购买种子、解锁土地。</p>
-        <button class="modal-close" onclick="closeRuleModal()">关闭</button>
-    </div>
-</div>
-
-<div class="mask hide" id="seedSelectModal">
-    <div class="modal">
-        <h3>选择播种种子</h3>
-        <div id="seedSelectList"></div>
-        <button class="modal-close" onclick="closeSeedSelect()">取消</button>
-    </div>
+<!-- 底部导航 -->
+<div class="tab-bar">
+  <div class="tab-item active" data-page="farm">
+    <span>🏡</span>
+    <span>青禾农场</span>
+  </div>
+  <div class="tab-item" data-page="study">
+    <span>📖</span>
+    <span>答题挑战</span>
+  </div>
+  <div class="tab-item" data-page="warehouse">
+    <span>📦</span>
+    <span>仓库</span>
+  </div>
+  <div class="tab-item" data-page="shop">
+    <span>🌱</span>
+    <span>商店</span>
+  </div>
 </div>
 
 <script>
-    const cropList = [
-        {name:"白菜",time:3*60,cost:5,gold:15,emoji:"🥬"},
-        {name:"胡萝卜",time:6*60,cost:5,gold:25,emoji:"🥕"},
-        {name:"番茄",time:9*60,cost:10,gold:35,emoji:"🍅"},
-        {name:"生菜",time:12*60,cost:15,gold:45,emoji:"🥬"},
-        {name:"黄瓜",time:15*60,cost:20,gold:55,emoji:"🥒"},
-        {name:"小麦",time:20*60,cost:25,gold:65,emoji:"🌾"},
-        {name:"草莓",time:20*60,cost:25,gold:75,emoji:"🍓"},
-    ];
+// =====================【全局配置区，可扩展修改】=====================
+const CROP_CONFIG = [
+  {name:"青菜",emoji:"🥬",seedCost:5,sellPrice:12,growTime:90},
+  {name:"番茄",emoji:"🍅",seedCost:6,sellPrice:14,growTime:120},
+  {name:"白菜",emoji:"🥬",seedCost:6,sellPrice:13,growTime:100},
+  {name:"胡萝卜",emoji:"🥕",seedCost:7,sellPrice:15,growTime:140},
+];
+const FERTILIZER_CONFIG = {
+  name:"速效化肥",emoji:"🧪",price:8,reduceTime:40,limitPerCycle:1
+};
+// 土地：初始2块解锁，总计8块
+const LAND_CONFIG = [
+  {unlock:true,cost:0},
+  {unlock:true,cost:0},
+  {unlock:false,cost:80},
+  {unlock:false,cost:110},
+  {unlock:false,cost:150},
+  {unlock:false,cost:190},
+  {unlock:false,cost:240},
+  {unlock:false,cost:300},
+];
+// 题库基础结构，后续可扩充更多题目
+const QUESTION_BANK = [
+  {
+    sceneId:1,
+    sceneName:"机场入境 & 海关沟通",
+    unlock:true,
+    isPass:false,
+    progressIndex:0,
+    wrongList:[],
+    questions:[
+      {type:"choice",question:"Could I see your passport and visa?",translate:"麻烦出示一下你的护照和签证好吗？",options:["Sure, here you are.","I want to book a room.","I don't know.","My luggage is lost."],answer:"Sure, here you are."},
+      {type:"judge",question:"luggage",translate:"行李",options:["正确","错误"],answer:"正确"},
+      {type:"match",question:"customs officer",translate:"",options:["空乘","海关官员","司机","店员"],answer:"海关官员"},
+      {type:"choice",question:"How long will you stay here?",translate:"你打算在这里停留多久？",options:["Two weeks.","I like apples.","No problem.","It's cheap."],answer:"Two weeks."},
+      {type:"judge",question:"tourist",translate:"游客",options:["正确","错误"],answer:"正确"}
+    ]
+  },
+  {
+    sceneId:2,
+    sceneName:"酒店预订、前台入住沟通",
+    unlock:false,
+    isPass:false,
+    progressIndex:0,
+    wrongList:[],
+    questions:[
+      {type:"choice",question:"Do you have a reservation?",translate:"您有提前预订吗？",options:["Yes, under my name.","I don't eat beef.","Where is the subway?","I need two tickets."],answer:"Yes, under my name."},
+      {type:"judge",question:"check-in",translate:"办理入住",options:["正确","错误"],answer:"正确"}
+    ]
+  },
+  {sceneId:3,sceneName:"市内交通（打车、地铁、公交）",unlock:false,isPass:false,progressIndex:0,wrongList:[],questions:[]},
+  {sceneId:4,sceneName:"餐厅点餐、用餐交流",unlock:false,isPass:false,progressIndex:0,wrongList:[],questions:[]},
+  {sceneId:5,sceneName:"超市&便利店采购",unlock:false,isPass:false,progressIndex:0,wrongList:[],questions:[]},
+  {sceneId:6,sceneName:"商场购物、退换货咨询",unlock:false,isPass:false,progressIndex:0,wrongList:[],questions:[]},
+  {sceneId:7,sceneName:"景区游览、购票、问路",unlock:false,isPass:false,progressIndex:0,wrongList:[],questions:[]},
+  {sceneId:8,sceneName:"社交聚会、邀约结伴",unlock:false,isPass:false,progressIndex:0,wrongList:[],questions:[]},
+];
+// =================================================================
 
-    const SAVE_KEY = "qinghe_save";
-    function initDefaultData(){
-        return {
-            gold: 0,
-            light: 0,
-            fertilizer: 0,
-            seedBag: [{id:0,count:2}],
-            scenePass: [false,false,false],
-            farmData: [
-                {unlock:true,crop:null,endTime:0},
-                {unlock:true,crop:null,endTime:0},
-                {unlock:false,cost:5,crop:null,endTime:0},
-                {unlock:false,cost:5,crop:null,endTime:0},
-                {unlock:false,cost:5,crop:null,endTime:0},
-                {unlock:false,cost:5,crop:null,endTime:0},
-            ]
-        }
-    }
+// 全局数据
+let gameData = {
+  lightGrain:0,
+  coin:0,
+  landList:[],
+  farmPlants:[], // 田里作物 {cropName,endTime,usedFertilizer:boolean}
+  warehouse:{
+    seedBag: {},
+    toolBag: {},
+    cropBag: {}
+  }
+};
+let currentWarehouseTab = "seed";
+let currentShopTab = "seedShop";
+let selectLandIndex = null;
 
-    function saveData(){
-        const saveObj = {
-            gameData: gameData,
-            farmData: farmData
-        }
-        localStorage.setItem(SAVE_KEY, JSON.stringify(saveObj));
-    }
+// 答题全局变量
+let currentSceneData = null;
+let quizList = [];
+let quizIndex = 0;
+let quizReviewMode = false;
+let selectedAnswer = null;
 
-    function loadData(){
-        const str = localStorage.getItem(SAVE_KEY);
-        if(!str){
-            return null;
-        }
-        try{
-            const data = JSON.parse(str);
-            return data;
-        }catch(e){
-            return null;
-        }
-    }
+// 本地存储
+function loadData(){
+  const saveStr = localStorage.getItem("qinghe_save");
+  if(saveStr){
+    gameData = JSON.parse(saveStr);
+  }else{
+    initLandData();
+  }
+}
+function saveData(){
+  localStorage.setItem("qinghe_save",JSON.stringify(gameData));
+}
+function initLandData(){
+  gameData.landList = JSON.parse(JSON.stringify(LAND_CONFIG));
+  gameData.farmPlants = Array(LAND_CONFIG.length).fill(null);
+  gameData.warehouse = {seedBag:{},toolBag:{},cropBag:{}};
+}
 
-    let save = loadData();
-    let gameData,farmData;
-    if(save){
-        gameData = save.gameData;
-        farmData = save.farmData;
+// 顶部资源刷新
+function refreshResource(){
+  document.getElementById("light-grain").innerText = gameData.lightGrain;
+  document.getElementById("coin").innerText = gameData.coin;
+}
+
+// 底部页面切换
+document.querySelectorAll(".tab-item").forEach(tab=>{
+  tab.onclick = function(){
+    const target = this.dataset.page;
+    document.querySelectorAll(".tab-item").forEach(i=>i.classList.remove("active"));
+    this.classList.add("active");
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    document.getElementById("page-"+target).classList.add("active");
+    if(target === 'warehouse') renderWarehouse();
+    if(target === 'shop') renderShop();
+  }
+})
+
+// 仓库标签切换
+document.querySelectorAll(".w-tab").forEach(tab=>{
+  tab.onclick = function(){
+    document.querySelectorAll(".w-tab").forEach(t=>t.classList.remove("active"));
+    this.classList.add("active");
+    currentWarehouseTab = this.dataset.target;
+    renderWarehouse();
+  }
+})
+// 商店标签切换
+document.querySelectorAll(".s-tab").forEach(tab=>{
+  tab.onclick = function(){
+    document.querySelectorAll(".s-tab").forEach(t=>t.classList.remove("active"));
+    this.classList.add("active");
+    currentShopTab = this.dataset.target;
+    renderShop();
+  }
+})
+
+// 弹窗
+function showPop(html,callback){
+  document.getElementById("pop-body").innerHTML = html;
+  document.getElementById("pop").style.display = "flex";
+  window.popCallback = callback;
+}
+function closePop(){
+  document.getElementById("pop").style.display = "none";
+  if(window.popCallback) window.popCallback();
+  window.popCallback = null;
+}
+
+// =====================农场模块=====================
+function renderFarm(){
+  const wrap = document.getElementById("farm-container");
+  wrap.innerHTML = "";
+  gameData.landList.forEach((land,idx)=>{
+    const div = document.createElement("div");
+    div.className = "land-item " + (land.unlock?"":"lock");
+    const plant = gameData.farmPlants[idx];
+    if(!land.unlock){
+      div.innerHTML = `<div class="land-mask">解锁💰${land.cost}</div><span class="land-text">地块${idx+1}</span>`;
+      div.onclick = ()=>unlockLand(idx);
     }else{
-        const defaultData = initDefaultData();
-        gameData = defaultData;
-        farmData = defaultData.farmData;
-        saveData();
-    }
-
-    let currentPlantFieldIndex = null;
-    let activeSceneIndex = null;
-    let currentQuestionIndex = 0;
-    let sceneQuestionList = [];
-    let sceneHasWrongAnswer = false;
-
-    document.querySelectorAll('.tab-item').forEach(btn=>{
-        btn.onclick = function(){
-            const tabName = this.dataset.tab;
-            switchPage(tabName);
-        }
-    });
-
-    function switchPage(name){
-        document.querySelectorAll('.page').forEach(p=>p.classList.add('hide'));
-        document.getElementById('page-'+name).classList.remove('hide');
-        document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('tab-active'));
-        document.querySelector(`.tab-item[data-tab="${name}"]`).classList.add('tab-active');
-        updateResource();
-        if(name==='farm') renderFarm();
-        if(name==='bag') renderBag();
-        if(name==='shop') renderShop();
-        if(name === 'quiz') renderSceneList();
-    }
-
-    function updateResource(){
-        document.getElementById('gold').innerText = gameData.gold;
-        document.getElementById('light').innerText = gameData.light;
-        document.getElementById('fertNum').innerText = gameData.fertilizer;
-    }
-
-    function openRuleModal(){document.getElementById('ruleModal').classList.remove('hide');}
-    function closeRuleModal(){document.getElementById('ruleModal').classList.add('hide');}
-
-    function openModal(title, text, nextCallback){
-        const modal = document.getElementById("globalModal");
-        document.getElementById("modalTitle").innerText = title;
-        document.getElementById("modalText").innerText = text;
-        modal.classList.remove("hide");
-        document.getElementById("modalConfirmBtn").onclick = function(){
-            modal.classList.add("hide");
-            if(nextCallback) nextCallback();
-        }
-    }
-
-    function openSelectSeedModal(fieldIndex){
-        currentPlantFieldIndex = fieldIndex;
-        const wrap = document.getElementById("seedSelectList");
-        wrap.innerHTML = "";
-        let hasSeed = false;
-        cropList.forEach((c,i)=>{
-            let num = getSeedCount(i);
-            if(num > 0){
-                hasSeed = true;
-                let btn = document.createElement("button");
-                btn.className = "seed-select-item";
-                btn.innerText = `${c.emoji} ${c.name}｜剩余${num}颗`;
-                btn.onclick = ()=>confirmPlant(i);
-                wrap.appendChild(btn);
-            }
-        })
-        if(!hasSeed) wrap.innerHTML = `<p style="text-align:center;margin:16px 0">暂无种子，请前往商店购买！</p>`;
-        document.getElementById("seedSelectModal").classList.remove("hide");
-    }
-    function closeSeedSelect(){
-        document.getElementById("seedSelectModal").classList.add("hide");
-        currentPlantFieldIndex = null;
-    }
-    function confirmPlant(cropId){
-        const idx = currentPlantFieldIndex;
-        let item = gameData.seedBag.find(s=>s.id===cropId);
-        item.count--;
-        if(item.count <= 0) gameData.seedBag = gameData.seedBag.filter(s=>s.count>0);
-        let field = farmData[idx];
-        field.crop = cropId;
-        field.endTime = Date.now()/1000 + cropList[cropId].time;
-        closeSeedSelect();
-        renderFarm();
-        saveData();
-    }
-
-    function renderFarm(){
-        const wrap = document.getElementById('farmContainer');
-        wrap.innerHTML='';
-        farmData.forEach((field,i)=>{
-            let div = document.createElement('div');
-            div.className = 'farm-tile '+(!field.unlock?'tile-locked':'');
-            if(!field.unlock){
-                div.innerHTML = `<div class="tile-text">🔒<br>${field.cost}✨解锁</div>`;
-                div.onclick = ()=>unlockField(i);
-            }else if(!field.crop){
-                div.innerHTML = `<div class="tile-text">空地<br>点击播种</div>`;
-                div.onclick = ()=>openSelectSeedModal(i);
-            }else{
-                let crop = cropList[field.crop];
-                let now = Date.now()/1000;
-                let left = Math.max(0, field.endTime - now);
-                let min = Math.floor(left/60);
-                let sec = Math.floor(left%60);
-                if(left<=0){
-                    div.innerHTML = `<div class="crop-icon">${crop.emoji}</div><div class="tile-text">${crop.name}<br>可收获</div>`;
-                    div.onclick = ()=>harvest(i);
-                }else{
-                    div.innerHTML = `<div class="crop-icon">🌱</div><div class="tile-text">${crop.name}<br>${min}:${sec<10?'0'+sec:sec}成熟</div>`;
-                    div.onclick = ()=>useFertilizer(i);
-                }
-            }
-            wrap.appendChild(div);
-        })
-    }
-
-    function unlockField(idx){
-        let f = farmData[idx];
-        if(gameData.light >= f.cost){
-            gameData.light -= f.cost;
-            f.unlock = true;
-            renderFarm();
-            updateResource();
-            saveData();
-            openModal("提示","地块解锁成功");
-        }else openModal("提示","光粒不足");
-    }
-    function getSeedCount(cropId){
-        let item = gameData.seedBag.find(s=>s.id===cropId);
-        return item ? item.count : 0;
-    }
-    function harvest(idx){
-        let field = farmData[idx];
-        let crop = cropList[field.crop];
-        gameData.gold += crop.gold;
-        field.crop = null;
-        field.endTime = 0;
-        renderFarm();
-        updateResource();
-        saveData();
-        openModal("收获成功",`收获${crop.name}，获得${crop.gold}金币`);
-    }
-    function useFertilizer(idx){
-        if(gameData.fertilizer<=0){openModal("提示","无化肥道具");return;}
-        let field = farmData[idx];
-        if(!field.crop) return;
-        gameData.fertilizer--;
-        field.endTime -= cropList[field.crop].time * 0.4;
-        renderFarm();
-        updateResource();
-        saveData();
-        openModal("提示","施肥成功");
-    }
-
-    function renderBag(){
-        const wrap = document.getElementById('bagSeedList');
-        wrap.innerHTML='';
-        if(gameData.seedBag.length ===0){
-            wrap.innerHTML = "<p>暂无种子</p>";
-            return;
-        }
-        gameData.seedBag.forEach(item=>{
-            let c = cropList[item.id];
-            let div = document.createElement('div');
-            div.className = 'goods-item';
-            div.innerHTML = `<span>${c.emoji} ${c.name}</span><span>剩余：${item.count}颗</span>`;
-            wrap.appendChild(div);
-        })
-    }
-    function renderShop(){
-        const wrap = document.getElementById('shopSeedList');
-        wrap.innerHTML='';
-        cropList.forEach((c,i)=>{
-            let div = document.createElement('div');
-            div.className = 'goods-item';
-            div.innerHTML = `
-                <span>${c.emoji} ${c.name}</span>
-                <button class="buy-btn" onclick="buySeed(${i})">${c.cost}✨购买</button>
-            `;
-            wrap.appendChild(div);
-        })
-    }
-    function buySeed(cropId){
-        let crop = cropList[cropId];
-        if(gameData.light < crop.cost){openModal("提示","光粒不足");return;}
-        gameData.light -= crop.cost;
-        let item = gameData.seedBag.find(s=>s.id===cropId);
-        if(item) item.count++;
-        else gameData.seedBag.push({id:cropId,count:1});
-        updateResource();
-        saveData();
-        openModal("提示","种子购买成功");
-    }
-    function buyFert(){
-        if(gameData.gold >=30){
-            gameData.gold -=30;
-            gameData.fertilizer++;
-            updateResource();
-            saveData();
-            openModal("提示","化肥购买成功");
-        }else openModal("提示","金币不足");
-    }
-
-    const sceneInfo = [
-        {name:'饮食就餐',num:10},
-        {name:'日常出行',num:20},
-        {name:'朋友社交',num:30}
-    ];
-    const questionData = [
-        {type:'choice',q:'breakfast',opt:['早餐','午餐','晚餐','宵夜'],ans:0,ansText:"早餐"},
-        {type:'choice',q:'menu',opt:['门票','菜单','地图','账单'],ans:1,ansText:"菜单"},
-        {type:'judge',q:'I want a cup of coffee.翻译：我想要一杯咖啡',ans:true,ansText:"正确"},
-        {type:'choice',q:'water',opt:['啤酒','果汁','纯净水','可乐'],ans:2,ansText:"纯净水"},
-        {type:'judge',q:'Dessert意思是主食',ans:false,ansText:"错误，dessert是甜点"},
-        {type:'choice',q:'check bill',opt:['点餐','结账','打包','预约'],ans:1,ansText:"结账"},
-        {type:'choice',q:'fork',opt:['勺子','叉子','筷子','小刀'],ans:1,ansText:"叉子"},
-        {type:'judge',q:'Take away代表堂食',ans:false,ansText:"错误，take away是打包带走"},
-        {type:'choice',q:'vegetable',opt:['肉类','蔬菜','水果','零食'],ans:1,ansText:"蔬菜"},
-        {type:'judge',q:'Can I have the menu?可以给我菜单吗',ans:true,ansText:"正确"},
-        {type:'choice',q:'subway',opt:['公交车','地铁','出租车','火车'],ans:1,ansText:"地铁"},
-        {type:'choice',q:'ticket',opt:['车票','水杯','雨伞','手机'],ans:0,ansText:"车票"},
-        {type:'judge',q:'bus stop是公交站台',ans:true,ansText:"正确"},
-        {type:'choice',q:'airport',opt:['火车站','汽车站','机场','地铁站'],ans:2,ansText:"机场"},
-        {type:'judge',q:'go out代表待在家里',ans:false,ansText:"错误，go out是外出"},
-        {type:'choice',q:'road',opt:['河流','马路','楼房','公园'],ans:1,ansText:"马路"},
-        {type:'choice',q:'walk',opt:['开车','骑车','步行','坐车'],ans:2,ansText:"步行"},
-        {type:'judge',q:'traffic light红绿灯',ans:true,ansText:"正确"},
-        {type:'choice',q:'station',opt:['站点','商店','餐厅','学校'],ans:0,ansText:"站点"},
-        {type:'judge',q:'by bus乘坐公交',ans:true,ansText:"正确"},
-        {type:'choice',q:'park',opt:['医院','公园','超市','银行'],ans:1,ansText:"公园"},
-        {type:'choice',q:'left',opt:['右边','前面','左边','后面'],ans:2,ansText:"左边"},
-        {type:'judge',q:'right是右边',ans:true,ansText:"正确"},
-        {type:'choice',q:'hotel',opt:['酒店','饭店','学校','公司'],ans:0,ansText:"酒店"},
-        {type:'judge',q:'go home回家',ans:true,ansText:"正确"},
-        {type:'choice',q:'shop',opt:['学校','商店','医院','公园'],ans:1,ansText:"商店"},
-        {type:'choice',q:'rain',opt:['晴天','刮风','下雨','下雪'],ans:2,ansText:"下雨"},
-        {type:'judge',q:'sunny是晴天',ans:true,ansText:"正确"},
-        {type:'choice',q:'time',opt:['地点','时间','天气','路线'],ans:1,ansText:"时间"},
-        {type:'judge',q:'Where are you going?你要去哪里',ans:true,ansText:"正确"},
-        {type:'choice',q:'friend',opt:['家人','朋友','同事','同学'],ans:1,ansText:"朋友"},
-        {type:'choice',q:'hello',opt:['再见','你好','谢谢','对不起'],ans:1,ansText:"你好"},
-        {type:'judge',q:'thank you谢谢你',ans:true,ansText:"正确"},
-        {type:'choice',q:'sorry',opt:['没关系','谢谢','对不起','不客气'],ans:2,ansText:"对不起"},
-        {type:'judge',q:'goodbye是再见',ans:true,ansText:"正确"},
-        {type:'choice',q:'happy',opt:['难过','开心','生气','疲惫'],ans:1,ansText:"开心"},
-        {type:'choice',q:'play',opt:['工作','学习','玩耍','睡觉'],ans:2,ansText:"玩耍"},
-        {type:'judge',q:'nice to meet you很高兴见到你',ans:true,ansText:"正确"},
-        {type:'choice',q:'name',opt:['年龄','名字','性别','职业'],ans:1,ansText:"名字"},
-        {type:'judge',q:'How old are you?你多大年纪',ans:true,ansText:"正确"},
-        {type:'choice',q:'read',opt:['看书','写字','唱歌','跳舞'],ans:0,ansText:"看书"},
-        {type:'choice',q:'music',opt:['美术','音乐','体育','语文'],ans:1,ansText:"音乐"},
-        {type:'judge',q:'I like English我喜欢英语',ans:true,ansText:"正确"},
-        {type:'choice',q:'together',opt:['单独','一起','分开','各自'],ans:1,ansText:"一起"},
-        {type:'judge',q:'let us go我们走吧',ans:true,ansText:"正确"},
-        {type:'choice',q:'help',opt:['帮助','拒绝','离开','拒绝'],ans:0,ansText:"帮助"},
-        {type:'choice',q:'beautiful',opt:['丑陋的','漂亮的','普通的','难看的'],ans:1,ansText:"漂亮的"},
-        {type:'judge',q:'very much非常喜欢',ans:true,ansText:"正确"},
-        {type:'choice',q:'talk',opt:['倾听','交谈','沉默','聆听'],ans:1,ansText:"交谈"},
-        {type:'judge',q:'see you tomorrow明天见',ans:true,ansText:"正确"},
-        {type:'choice',q:'good morning',opt:['下午好','早上好','晚上好','晚安'],ans:1,ansText:"早上好"},
-        {type:'choice',q:'good afternoon',opt:['下午好','早上好','晚上好','晚安'],ans:0,ansText:"下午好"},
-        {type:'judge',q:'good night晚安',ans:true,ansText:"正确"},
-        {type:'choice',q:'love',opt:['讨厌','热爱','厌烦','排斥'],ans:1,ansText:"热爱"},
-        {type:'judge',q:'welcome欢迎',ans:true,ansText:"正确"},
-        {type:'choice',q:'fine',opt:['糟糕的','很好的','一般的','很差的'],ans:1,ansText:"很好的"},
-        {type:'choice',q:'How are you?',opt:['你去哪','你好吗','几点了','多少钱'],ans:1,ansText:"你好吗"},
-        {type:'judge',q:'I am fine我很好',ans:true,ansText:"正确"},
-        {type:'choice',q:'nice',opt:['糟糕','很好','差劲','无聊'],ans:1,ansText:"很好"},
-        {type:'judge',q:'See you next time下次见',ans:true,ansText:"正确"},
-    ];
-
-    function renderSceneList(){
-        const wrap = document.getElementById("sceneList");
-        wrap.innerHTML = "";
-        sceneInfo.forEach((s,i)=>{
-            let unlock = i===0 ? true : gameData.scenePass[i-1];
-            let div = document.createElement("div");
-            div.className = "scene-item "+(!unlock?"scene-lock":"");
-            let tip = gameData.scenePass[i] ? "✅已通关" : (!unlock ? "🔒未解锁":"可挑战");
-            div.innerHTML = `<span>${s.name}（共${s.num}题）</span><span>${tip}</span>`;
-            if(unlock) div.onclick = ()=>startScene(i);
-            wrap.appendChild(div);
-        });
-        document.getElementById("quizArea").classList.add("hide");
-    }
-
-    function startScene(sceneIdx){
-        activeSceneIndex = sceneIdx;
-        currentQuestionIndex = 0;
-        sceneHasWrongAnswer = false;
-        let startIndex = 0;
-        for(let s=0;s<sceneIdx;s++) startIndex += sceneInfo[s].num;
-        let count = sceneInfo[sceneIdx].num;
-        sceneQuestionList = questionData.slice(startIndex, startIndex+count);
-        document.getElementById("sceneList").classList.add("hide");
-        document.getElementById("quizArea").classList.remove("hide");
-        renderQuestion();
-    }
-
-    function exitQuiz(){
-        document.getElementById("quizArea").classList.add("hide");
-        document.getElementById("sceneList").classList.remove("hide");
-        renderSceneList();
-    }
-
-    function renderQuestion(){
-        let q = sceneQuestionList[currentQuestionIndex];
-        document.getElementById("qText").innerText = q.q;
-        let optBox = document.getElementById("optBox");
-        optBox.innerHTML = "";
-        if(q.type === "choice"){
-            q.opt.forEach((txt,i)=>{
-                let btn = document.createElement("button");
-                btn.className = "option-btn";
-                btn.innerText = txt;
-                btn.onclick = ()=>selectAnswer(i);
-                optBox.appendChild(btn);
-            })
-        }else if(q.type === "judge"){
-            let btnY = document.createElement("button");
-            btnY.className = "option-btn";
-            btnY.innerText = "✅ 正确";
-            btnY.onclick = ()=>selectAnswer(true);
-            optBox.appendChild(btnY);
-
-            let btnN = document.createElement("button");
-            btnN.className = "option-btn";
-            btnN.innerText = "❌ 错误";
-            btnN.onclick = ()=>selectAnswer(false);
-            optBox.appendChild(btnN);
-        }
-    }
-
-    function selectAnswer(userAns){
-        let q = sceneQuestionList[currentQuestionIndex];
-        let correct = false;
-        if(q.type === "choice"){
-            correct = (userAns === q.ans);
+      if(!plant){
+        div.innerText = "🌱";
+        div.innerHTML += `<div class="land-text">空地</div>`;
+        div.onclick = ()=>openSeedSelectPop(idx);
+      }else{
+        const now = Date.now();
+        const end = plant.endTime;
+        const crop = CROP_CONFIG.find(c=>c.name===plant.cropName);
+        if(now >= end){
+          div.innerText = crop.emoji;
+          div.innerHTML += `<div class="land-text">点击收获</div>`;
+          div.onclick = ()=>harvest(idx);
         }else{
-            correct = (userAns === q.ans);
+          const left = Math.ceil((end - now)/1000);
+          div.innerText = crop.emoji;
+          div.innerHTML += `<div class="grow-tip">${left}秒成熟</div>`;
+          div.style.opacity = "0.72";
+          div.onclick = ()=>openFertilizerPop(idx);
         }
-        if(!correct){
-            sceneHasWrongAnswer = true;
-            openModal("回答错误",`标准答案：${q.ansText}`,goNextQuestion);
-        }else{
-            openModal("回答正确","",goNextQuestion);
-        }
+      }
     }
+    wrap.appendChild(div);
+  })
+}
+// 解锁地块
+function unlockLand(idx){
+  const land = gameData.landList[idx];
+  if(gameData.coin >= land.cost){
+    gameData.coin -= land.cost;
+    land.unlock = true;
+    saveData();
+    refreshResource();
+    renderFarm();
+    showPop("🎉解锁成功！获得新田地");
+  }else{
+    showPop("💰金币不足！出售仓库农产品赚取金币");
+  }
+}
+// 空地弹出种子选择
+function openSeedSelectPop(landIdx){
+  selectLandIndex = landIdx;
+  const seedBag = gameData.warehouse.seedBag;
+  let hasSeed = false;
+  let html = "<h4>选择种子播种</h4>";
+  for(let name in seedBag){
+    const num = seedBag[name];
+    if(num <= 0) continue;
+    hasSeed = true;
+    const crop = CROP_CONFIG.find(c=>c.name === name);
+    html += `<button class="btn" onclick="sowSeed('${name}')">${crop.emoji} ${name}（库存${num}）</button>`;
+  }
+  if(!hasSeed){
+    html += `<div style="text-align:center;margin:14px 0;color:#777">仓库暂无种子</div>`;
+    html += `<button class="btn" onclick="closePop();switchPageShop();">前往商店购买</button>`;
+  }
+  html += `<button class="btn secondary" onclick="closePop()">取消</button>`;
+  showPop(html);
+}
+function switchPageShop(){
+  document.querySelector('[data-page="shop"]').click();
+}
+// 播种
+function sowSeed(cropName){
+  if(selectLandIndex === null) return;
+  const crop = CROP_CONFIG.find(c=>c.name===cropName);
+  gameData.warehouse.seedBag[cropName]--;
+  if(gameData.warehouse.seedBag[cropName] <= 0) delete gameData.warehouse.seedBag[cropName];
+  gameData.farmPlants[selectLandIndex] = {
+    cropName:cropName,
+    endTime:Date.now() + crop.growTime * 1000,
+    usedFertilizer:false
+  };
+  saveData();
+  renderFarm();
+  closePop();
+}
+// 收获
+function harvest(idx){
+  const plant = gameData.farmPlants[idx];
+  const crop = CROP_CONFIG.find(c=>c.name===plant.cropName);
+  if(!gameData.warehouse.cropBag[crop.name]) gameData.warehouse.cropBag[crop.name] = 0;
+  gameData.warehouse.cropBag[crop.name] += 1;
+  gameData.farmPlants[idx] = null;
+  saveData();
+  renderFarm();
+  showPop(`收获${crop.emoji}${crop.name}，存入仓库农产品区！`);
+}
+// 施肥弹窗
+function openFertilizerPop(idx){
+  const plant = gameData.farmPlants[idx];
+  if(plant.usedFertilizer){
+    showPop("这块田地本季已经施过化肥，无法再次使用！");
+    return;
+  }
+  const fertCount = gameData.warehouse.toolBag[FERTILIZER_CONFIG.name] || 0;
+  let html = `<h4>田地加速</h4>`;
+  if(fertCount > 0){
+    html += `<div style="margin-bottom:12px">仓库拥有 ${FERTILIZER_CONFIG.emoji}速效化肥 x${fertCount}</div>`;
+    html += `<button class="btn" onclick="useFertilizer(${idx})">使用化肥，缩短${FERTILIZER_CONFIG.reduceTime}秒</button>`;
+  }else{
+    html += `<div style="margin-bottom:12px;color:#777">仓库暂无速效化肥</div>`;
+    html += `<button class="btn" onclick="closePop();switchPageShop();">前往商店购买</button>`;
+  }
+  html += `<button class="btn secondary" onclick="closePop()">取消</button>`;
+  showPop(html);
+}
+function useFertilizer(idx){
+  const plant = gameData.farmPlants[idx];
+  const fert = FERTILIZER_CONFIG;
+  gameData.warehouse.toolBag[fert.name]--;
+  if(gameData.warehouse.toolBag[fert.name] <=0) delete gameData.warehouse.toolBag[fert.name];
+  plant.endTime -= fert.reduceTime * 1000;
+  plant.usedFertilizer = true;
+  saveData();
+  renderFarm();
+  closePop();
+  showPop("✅施肥成功！作物成熟时间缩短！");
+}
 
-    function goNextQuestion(){
-        currentQuestionIndex++;
-        if(currentQuestionIndex >= sceneQuestionList.length){
-            settleQuizResult();
-            return;
-        }
-        renderQuestion();
+// =====================仓库渲染=====================
+function renderWarehouse(){
+  const wrap = document.getElementById("warehouse-content");
+  wrap.innerHTML = "";
+  const wh = gameData.warehouse;
+  if(currentWarehouseTab === "seed"){
+    let empty = true;
+    for(let name in wh.seedBag){
+      const num = wh.seedBag[name];
+      if(num <=0) continue;
+      empty = false;
+      const crop = CROP_CONFIG.find(c=>c.name === name);
+      const div = document.createElement("div");
+      div.className = "ware-item";
+      div.innerHTML = `
+        <div class="item-left">
+          <span>${crop.emoji}</span>
+          <div class="item-info">
+            <b>${name}种子</b>
+            <div>库存：${num}</div>
+          </div>
+        </div>
+      `;
+      wrap.appendChild(div);
     }
-
-    function settleQuizResult(){
-        const isPassedBefore = gameData.scenePass[activeSceneIndex];
-        const sceneTotal = sceneQuestionList.length;
-        if(isPassedBefore){
-            openModal("练习结束","该场景已通关，本次挑战不获得光粒",exitQuiz);
-            return;
-        }
-        if(sceneHasWrongAnswer){
-            openModal("挑战失败","本轮存在错题，无法通关，不获得光粒",exitQuiz);
-        }else{
-            const rewardLight = sceneTotal * 2;
-            gameData.light += rewardLight;
-            gameData.scenePass[activeSceneIndex] = true;
-            updateResource();
-            saveData();
-            openModal("🎉挑战成功",`全部题目答对！获得${rewardLight}✨光粒，解锁下一英语场景`,exitQuiz);
-        }
+    if(empty) wrap.innerHTML = `<div class="empty-text">暂无种子，前往商店购买</div>`;
+  }else if(currentWarehouseTab === "tool"){
+    let empty = true;
+    for(let name in wh.toolBag){
+      const num = wh.toolBag[name];
+      if(num <=0) continue;
+      empty = false;
+      const div = document.createElement("div");
+      div.className = "ware-item";
+      div.innerHTML = `
+        <div class="item-left">
+          <span>${FERTILIZER_CONFIG.emoji}</span>
+          <div class="item-info">
+            <b>${name}</b>
+            <div>库存：${num}</div>
+          </div>
+        </div>
+      `;
+      wrap.appendChild(div);
     }
+    if(empty) wrap.innerHTML = `<div class="empty-text">暂无道具</div>`;
+  }else if(currentWarehouseTab === "crop"){
+    let empty = true;
+    for(let name in wh.cropBag){
+      const num = wh.cropBag[name];
+      if(num <=0) continue;
+      empty = false;
+      const crop = CROP_CONFIG.find(c=>c.name === name);
+      const div = document.createElement("div");
+      div.className = "ware-item";
+      div.innerHTML = `
+        <div class="item-left">
+          <span>${crop.emoji}</span>
+          <div class="item-info">
+            <b>${name}</b>
+            <div>持有：${num}</div>
+          </div>
+        </div>
+        <button class="btn sell" style="width:auto;padding:7px 11px;font-size:13px" onclick="sellCrop('${name}')">出售💰${crop.sellPrice}</button>
+      `;
+      wrap.appendChild(div);
+    }
+    if(empty) wrap.innerHTML = `<div class="empty-text">暂无农产品，快去农田收获</div>`;
+  }
+}
+// 出售农产品
+function sellCrop(name){
+  const crop = CROP_CONFIG.find(c=>c.name === name);
+  gameData.coin += crop.sellPrice;
+  gameData.warehouse.cropBag[name]--;
+  if(gameData.warehouse.cropBag[name] <=0) delete gameData.warehouse.cropBag[name];
+  saveData();
+  refreshResource();
+  renderWarehouse();
+}
 
-    switchPage('farm');
-    setInterval(()=>{
-        renderFarm();
-    },1000);
+// =====================商店渲染=====================
+function renderShop(){
+  const wrap = document.getElementById("shop-content");
+  wrap.innerHTML = "";
+  if(currentShopTab === "seedShop"){
+    CROP_CONFIG.forEach(crop=>{
+      const div = document.createElement("div");
+      div.className = "shop-card";
+      div.innerHTML = `
+        <div style="font-size:30px;margin-bottom:6px;">${crop.emoji}</div>
+        <div><b>${crop.name}种子</b></div>
+        <div>售价：✨${crop.seedCost}</div>
+        <div>成熟出售：💰${crop.sellPrice}</div>
+        <div>生长时长：${crop.growTime}秒</div>
+        <button class="btn" style="margin-top:10px" onclick="buySeed('${crop.name}')">购买</button>
+      `;
+      wrap.appendChild(div);
+    })
+  }else{
+    const fert = FERTILIZER_CONFIG;
+    const div = document.createElement("div");
+    div.className = "shop-card";
+    div.innerHTML = `
+      <div style="font-size:30px;margin-bottom:6px;">${fert.emoji}</div>
+      <div><b>${fert.name}</b></div>
+      <div>售价：💰${fert.price}</div>
+      <div>效果：作物缩短${fert.reduceTime}秒成熟</div>
+      <div>限制：单块田地一季最多1次</div>
+      <button class="btn" style="margin-top:10px" onclick="buyFertilizer()">购买</button>
+    `;
+    wrap.appendChild(div);
+  }
+}
+// 购买种子
+function buySeed(cropName){
+  const crop = CROP_CONFIG.find(c=>c.name===cropName);
+  if(gameData.lightGrain >= crop.seedCost){
+    gameData.lightGrain -= crop.seedCost;
+    if(!gameData.warehouse.seedBag[cropName]) gameData.warehouse.seedBag[cropName] = 0;
+    gameData.warehouse.seedBag[cropName] +=1;
+    saveData();
+    refreshResource();
+    showPop(`✅购买成功！${crop.emoji}${crop.name}种子存入仓库`);
+  }else{
+    showPop("✨光粒不足！完成答题挑战获取");
+  }
+}
+// 购买化肥
+function buyFertilizer(){
+  const fert = FERTILIZER_CONFIG;
+  if(gameData.coin >= fert.price){
+    gameData.coin -= fert.price;
+    if(!gameData.warehouse.toolBag[fert.name]) gameData.warehouse.toolBag[fert.name] = 0;
+    gameData.warehouse.toolBag[fert.name] +=1;
+    saveData();
+    refreshResource();
+    showPop(`✅购买成功！${fert.emoji}速效化肥存入仓库道具区`);
+  }else{
+    showPop("💰金币不足！出售农产品获取金币");
+  }
+}
+
+// =====================答题系统核心=====================
+function renderSceneList(){
+  const wrap = document.getElementById("scene-list");
+  wrap.innerHTML = "";
+  QUESTION_BANK.forEach(scene=>{
+    const div = document.createElement("div");
+    div.className = "scene-item " + (scene.unlock?"":"lock");
+    let passTip = scene.isPass ? "✅已通关（再次刷题无光粒）" : "";
+    div.innerHTML = `<b>${scene.sceneName}</b>${passTip?`<div style="font-size:13px;color:#709967;margin-top:4px">${passTip}</div>`:""}`;
+    if(scene.unlock){
+      div.onclick = ()=>openSceneQuiz(scene);
+    }
+    wrap.appendChild(div);
+  })
+}
+function openSceneQuiz(scene){
+  currentSceneData = scene;
+  quizReviewMode = false;
+  quizIndex = scene.progressIndex;
+  quizList = JSON.parse(JSON.stringify(scene.questions));
+  document.getElementById("scene-list").style.display = "none";
+  document.getElementById("quiz-area").style.display = "block";
+  renderQuiz();
+}
+function renderQuiz(){
+  selectedAnswer = null;
+  const btnNext = document.getElementById("btn-next");
+  btnNext.style.display = "none";
+  if(quizIndex >= quizList.length){
+    if(!quizReviewMode){
+      // 首轮结束，进入错题复盘
+      if(currentSceneData.wrongList.length > 0){
+        quizReviewMode = true;
+        quizIndex = 0;
+        quizList = JSON.parse(JSON.stringify(currentSceneData.wrongList));
+        showPop("本轮答题结束，进入错题复盘！");
+      }else{
+        // 无错题，通关
+        scenePass();
+        return;
+      }
+    }else{
+      // 复盘完成
+      scenePass();
+      return;
+    }
+  }
+  const q = quizList[quizIndex];
+  const totalLen = quizList.length;
+  document.getElementById("quiz-progress").innerText = quizReviewMode
+    ? `【错题复盘】第${quizIndex+1}/${totalLen}题`
+    : `第${quizIndex+1}/${totalLen}题`;
+  document.getElementById("q-content").innerText = q.question;
+  document.getElementById("q-trans").innerText = q.translate;
+  const optBox = document.getElementById("option-box");
+  optBox.innerHTML = "";
+  q.options.forEach(opt=>{
+    const btn = document.createElement("button");
+    btn.className = "opt-btn";
+    btn.innerText = opt;
+    btn.onclick = ()=>chooseOption(btn,opt,q);
+    optBox.appendChild(btn);
+  })
+}
+function chooseOption(btnDom,userOpt,q){
+  if(selectedAnswer) return;
+  selectedAnswer = userOpt;
+  document.querySelectorAll(".opt-btn").forEach(b=>b.classList.add("disabled"));
+  const btnNext = document.getElementById("btn-next");
+  btnNext.style.display = "block";
+  const isPassScene = currentSceneData.isPass;
+  if(userOpt === q.answer){
+    // 答对
+    if(!isPassScene){
+      gameData.lightGrain += 1;
+      refreshResource();
+    }
+    showPop(isPassScene
+      ? "回答正确！（已通关场景不再获得光粒）"
+      : "✅回答正确！获得✨1光粒");
+  }else{
+    // 答错
+    if(!quizReviewMode){
+      if(!currentSceneData.wrongList.find(item=>item.question === q.question)){
+        currentSceneData.wrongList.push(JSON.parse(JSON.stringify(q)));
+      }
+    }
+    showPop(`❌回答错误！正确答案：${q.answer}`);
+  }
+  // 下一题点击
+  btnNext.onclick = function(){
+    quizIndex++;
+    if(!quizReviewMode){
+      currentSceneData.progressIndex = quizIndex;
+    }
+    saveData();
+    renderQuiz();
+  }
+}
+function scenePass(){
+  currentSceneData.isPass = true;
+  // 解锁下一场景
+  const idx = QUESTION_BANK.findIndex(s=>s.sceneId === currentSceneData.sceneId);
+  if(idx+1 < QUESTION_BANK.length){
+    QUESTION_BANK[idx+1].unlock = true;
+  }
+  saveData();
+  document.getElementById("quiz-area").style.display = "none";
+  document.getElementById("scene-list").style.display = "block";
+  showPop("🎉恭喜！本场景全部通关，解锁下一学习场景！",()=>{
+    renderSceneList();
+  });
+}
+
+// 定时刷新农田倒计时
+setInterval(()=>{
+  if(document.getElementById("page-farm").classList.contains("active")){
+    renderFarm();
+  }
+},1000);
+
+// 程序入口
+function init(){
+  loadData();
+  refreshResource();
+  renderFarm();
+  renderShop();
+  renderSceneList();
+  renderWarehouse();
+}
+init();
 </script>
 </body>
 </html>
