@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>青禾小园</title>
-    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoi青禾小园Iiwic2hvcnRfbmFtZSI6IuW8teW8teS4reWbvSIsInN0YXJ0X3VybCI6Ii8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjZmNmN2UwIiwidGhlbWVfY29sb3IiOiIjY25lZGMwIn0=">
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoi青禾小园Iiwic2hvcnRfbmFtZSI6IuW8teW8teS4reWbvSIsInN0YXJ0X3VybCI6Ii8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3Ii[...]
     <style>
         * {
             margin: 0;
@@ -294,14 +294,14 @@
     <div class="modal">
         <h3 id="modalTitle"></h3>
         <div class="modal-desc" id="modalText"></div>
-        <button class="modal-close" id="modalConfirmBtn">下一题</button>
+        <button class="modal-close" id="modalConfirmBtn">确定</button>
     </div>
 </div>
 
 <div class="mask hide" id="ruleModal">
     <div class="modal">
         <h3>📖 游戏完整规则</h3>
-        <p style="margin:10px 0;">✨【光粒获取】<br>完成英语答题，答对1题 = 2光粒<br>⚠️全部题目完成后统一结算；场景一旦通关，再次挑战仅为练习，不再产出光粒</p>
+        <p style="margin:10px 0;">✨【光粒获取】<br>完成英语答题，答对1题 = 2光粒<br>⚠️全部题目完成后统一结算；场景一旦通关，再次挑战仅为练习，不再[...]
         <p>🌱【农田解锁】<br>1、2号田地：免费<br>3~6号田地：每块消耗5✨光粒解锁</p>
         <table>
             <tr>
@@ -469,7 +469,16 @@
         document.getElementById("modalTitle").innerText = title;
         document.getElementById("modalText").innerText = text;
         modal.classList.remove("hide");
-        document.getElementById("modalConfirmBtn").onclick = function(){
+        const confirmBtn = document.getElementById("modalConfirmBtn");
+        
+        // 【修复1】根据上下文动态改变按钮文本
+        if(title.includes("正确") || title.includes("错误")) {
+            confirmBtn.innerText = "下一题";
+        } else {
+            confirmBtn.innerText = "确定";
+        }
+        
+        confirmBtn.onclick = function(){
             modal.classList.add("hide");
             if(nextCallback) nextCallback();
         }
@@ -572,7 +581,8 @@
         let field = farmData[idx];
         if(!field.crop) return;
         gameData.fertilizer--;
-        field.endTime -= cropList[field.crop].time * 0.4;
+        // 【修复2】正确计算endTime：减少生长时间的40%
+        field.endTime = Math.max(0, field.endTime - cropList[field.crop].time * 0.4);
         renderFarm();
         updateResource();
         saveData();
@@ -768,7 +778,8 @@
         }
         if(!correct){
             sceneHasWrongAnswer = true;
-            openModal("回答错误",`标准答案：${q.ansText}`,goNextQuestion);
+            // 【修复3】添加ansText的默认值处理，防止undefined
+            openModal("回答错误",`标准答案：${q.ansText || "已提交"}`,goNextQuestion);
         }else{
             openModal("回答正确","",goNextQuestion);
         }
@@ -805,6 +816,8 @@
     switchPage('farm');
     setInterval(()=>{
         renderFarm();
+        // 【修复4】定期保存数据，防止页面关闭时数据丢失
+        saveData();
     },1000);
 </script>
 </body>
