@@ -581,8 +581,10 @@
         let field = farmData[idx];
         if(!field.crop) return;
         gameData.fertilizer--;
-        // 【修复2】正确计算endTime：减少生长时间的40%
-        field.endTime = Math.max(0, field.endTime - cropList[field.crop].time * 0.4);
+        // 【修复2】正确计算endTime：计算剩余时间，减少40%后再更新
+        let remainingTime = field.endTime - Date.now()/1000;
+        let reducedTime = remainingTime * 0.4;
+        field.endTime = field.endTime - reducedTime;
         renderFarm();
         updateResource();
         saveData();
