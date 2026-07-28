@@ -208,12 +208,7 @@ header h3{
   box-shadow:0 1px 5px rgba(0,0,0,0.05);
 }
 .scene-item.lock{opacity:0.62}
-/*答题正确答案高亮*/
-.opt-btn.correct-highlight {
-  background-color:#d6efdb !important;
-  border-color:#83c996 !important;
-}
-  
+
 /* 仓库样式 */
 .warehouse-tab{
   display:flex;
@@ -305,10 +300,6 @@ header h3{
     <h4>📖答题挑战</h4>
     <div id="scene-list"></div>
     <div id="quiz-area" style="display:none;margin-top:16px;">
-      <div style="display:flex;align-items:center;padding:10px 6px;gap:6px;">
-  <button onclick="exitQuiz()" style="border:none;background:#A8D8B9;color:#fff;padding:5px 10px;border-radius:8px;font-size:14px;">← 返回</button>
-  <div style="font-size:16px;font-weight:bold;flex:1;text-align:center;">答题挑战</div>
-</div>
       <div class="progress-text" id="quiz-progress"></div>
       <div class="question-card">
         <div class="q-title" id="q-content"></div>
@@ -369,15 +360,13 @@ header h3{
   </div>
 </div>
 
+<script>
 // =====================【全局配置区，可扩展修改】=====================
 const CROP_CONFIG = [
-  {name:"白菜",emoji:"🥬",seedCost:5,sellPrice:10,growTime:60},
-  {name:"番茄",emoji:"🍅",seedCost:6,sellPrice:15,growTime:90},
-  {name:"胡萝卜",emoji:"🥕",seedCost:7,sellPrice:20,growTime:120},
-  {name:"玉米",emoji:"🌽",seedCost:8,sellPrice:25,growTime:150},
-  {name:"草莓",emoji:"🍓",seedCost:9,sellPrice:30,growTime:180},
-  {name:"西瓜",emoji:"🍉",seedCost:10,sellPrice:35,growTime:210},
-  {name:"葡萄",emoji:"🍇",seedCost:11,sellPrice:40,growTime:240}
+  {name:"青菜",emoji:"🥬",seedCost:5,sellPrice:12,growTime:90},
+  {name:"番茄",emoji:"🍅",seedCost:6,sellPrice:14,growTime:120},
+  {name:"白菜",emoji:"🥬",seedCost:6,sellPrice:13,growTime:100},
+  {name:"胡萝卜",emoji:"🥕",seedCost:7,sellPrice:15,growTime:140},
 ];
 const FERTILIZER_CONFIG = {
   name:"速效化肥",emoji:"🧪",price:8,reduceTime:40,limitPerCycle:1
@@ -386,59 +375,57 @@ const FERTILIZER_CONFIG = {
 const LAND_CONFIG = [
   {unlock:true,cost:0},
   {unlock:true,cost:0},
-  {unlock:false,cost:40},
-  {unlock:false,cost:70},
-  {unlock:false,cost:100},
-  {unlock:false,cost:140},
-  {unlock:false,cost:180},
-  {unlock:false,cost:230},
+  {unlock:false,cost:80},
+  {unlock:false,cost:110},
+  {unlock:false,cost:150},
+  {unlock:false,cost:190},
+  {unlock:false,cost:240},
+  {unlock:false,cost:300},
 ];
 // 题库基础结构，后续可扩充更多题目
-const ALL_SCENES = [
+const QUESTION_BANK = [
   // 场景1：机场入境 & 海关沟通 | 10单选+10判断+10匹配 =30题
   {
     sceneId: 1,
     sceneName: "机场入境 & 海关沟通",
     unlock: true,
     isPass: false,
-    finishOriginalRound: false,
     progressIndex: 0,
     wrongList: [],
-    answeredList:[],
     questions: [
       // ========== 10道 choice 单选 ==========
-      {type:"choice",q:"Could I see your passport and visa?",trans:"麻烦出示一下你的护照和签证好吗？",options:["Sure, here you are.","I want to book a room.","I don't know.","My luggage is lost."],answer:"Sure, here you are."},
-      {type:"choice",q:"How long will you stay here?",trans:"你打算在这里停留多久？",options:["Two weeks.","I like apples.","No problem.","It's cheap."],answer:"Two weeks."},
-      {type:"choice",q:"What's the purpose of your visit?",trans:"你此行的目的是什么？",options:["I'm here for travel.","I don't have money.","The flight is late.","I lost my bag."],answer:"I'm here for travel."},
-      {type:"choice",q:"Do you have anything to declare?",trans:"你有物品需要申报吗？",options:["No, nothing special.","I need a taxi.","I want water.","My phone is dead."],answer:"No, nothing special."},
-      {type:"choice",q:"Where can I collect my luggage?",trans:"我在哪里取行李？",options:["Baggage claim area.","Check-in counter.","Gate 5.","Customs exit."],answer:"Baggage claim area."},
-      {type:"choice",q:"My flight has been delayed.",trans:"我的航班延误了。",options:["Sorry for the inconvenience.","You can buy new tickets.","No flights left today.","Please leave the airport."],answer:"Sorry for the inconvenience."},
-      {type:"choice",q:"Do you accept foreign cash?",trans:"你们收外币现金吗？",options:["Yes, we can exchange it.","Only local cards.","Cash is forbidden.","Exchange service closed."],answer:"Yes, we can exchange it."},
-      {type:"choice",q:"This bag exceeds weight limit.",trans:"这个行李超重了。",options:["How much extra do I pay?","I will abandon the bag.","I don't pay any fees.","The scale is broken."],answer:"How much extra do I pay?"},
-      {type:"choice",q:"Where is the restroom?",trans:"洗手间在哪里？",options:["Next to Gate 3.","Outside the airport.","On the second floor of parking.","Only for staff."],answer:"Next to Gate 3."},
-      {type:"choice",q:"I can't find my boarding pass.",trans:"我找不到登机牌了。",options:["Show your ID to reprint it.","Boarding pass cannot be reissued.","Buy a new flight ticket.","Go to customs directly."],answer:"Show your ID to reprint it."},
+      {type:"choice",question:"Could I see your passport and visa?",translate:"麻烦出示一下你的护照和签证好吗？",options:["Sure, here you are.","I want to book a room.","I don't know.","My luggage is lost."],answer:"Sure, here you are."},
+      {type:"choice",question:"How long will you stay here?",translate:"你打算在这里停留多久？",options:["Two weeks.","I like apples.","No problem.","It's cheap."],answer:"Two weeks."},
+      {type:"choice",question:"What's the purpose of your visit?",translate:"你此行的目的是什么？",options:["I'm here for travel.","I don't have money.","The flight is late.","I lost my bag."],answer:"I'm here for travel."},
+      {type:"choice",question:"Do you have anything to declare?",translate:"你有物品需要申报吗？",options:["No, nothing special.","I need a taxi.","I want water.","My phone is dead."],answer:"No, nothing special."},
+      {type:"choice",question:"Where can I collect my luggage?",translate:"我在哪里取行李？",options:["Baggage claim area.","Check-in counter.","Gate 5.","Customs exit."],answer:"Baggage claim area."},
+      {type:"choice",question:"My flight has been delayed.",translate:"我的航班延误了。",options:["Sorry for the inconvenience.","You can buy new tickets.","No flights left today.","Please leave the airport."],answer:"Sorry for the inconvenience."},
+      {type:"choice",question:"Do you accept foreign cash?",translate:"你们收外币现金吗？",options:["Yes, we can exchange it.","Only local cards.","Cash is forbidden.","Exchange service closed."],answer:"Yes, we can exchange it."},
+      {type:"choice",question:"This bag exceeds weight limit.",translate:"这个行李超重了。",options:["How much extra do I pay?","I will abandon the bag.","I don't pay any fees.","The scale is broken."],answer:"How much extra do I pay?"},
+      {type:"choice",question:"Where is the restroom?",translate:"洗手间在哪里？",options:["Next to Gate 3.","Outside the airport.","On the second floor of parking.","Only for staff."],answer:"Next to Gate 3."},
+      {type:"choice",question:"I can't find my boarding pass.",translate:"我找不到登机牌了。",options:["Show your ID to reprint it.","Boarding pass cannot be reissued.","Buy a new flight ticket.","Go to customs directly."],answer:"Show your ID to reprint it."},
       // ========== 10道 judge 判断 ==========
-      {type:"judge",q:"luggage",trans:"行李",options:["正确","错误"],answer:"正确"},
-      {type:"judge",q:"tourist",trans:"游客",options:["正确","错误"],answer:"正确"},
-      {type:"judge",q:"declare",trans:"申报",options:["正确","错误"],answer:"正确"},
-      {type:"judge",q:"immigration",trans:"移民入境处",options:["正确","错误"],answer:"正确"},
-      {type:"judge",q:"airport terminal",trans:"机场航站楼",options:["正确","错误"],answer:"正确"},
-      {type:"judge",q:"departure",trans:"抵达",options:["正确","错误"],answer:"错误"},
-      {type:"judge",q:"transit",trans:"转机",options:["正确","错误"],answer:"正确"},
-      {type:"judge",q:"baggage trolley",trans:"行李手推车",options:["正确","错误"],answer:"正确"},
-      {type:"judge",q:"visa",trans:"机票",options:["正确","错误"],answer:"错误"},
-      {type:"judge",q:"customs",trans:"海关",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"luggage",translate:"行李",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"tourist",translate:"游客",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"declare",translate:"申报",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"immigration",translate:"移民入境处",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"airport terminal",translate:"机场航站楼",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"departure",translate:"抵达",options:["正确","错误"],answer:"错误"},
+      {type:"judge",question:"transit",translate:"转机",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"baggage trolley",translate:"行李手推车",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"visa",translate:"机票",options:["正确","错误"],answer:"错误"},
+      {type:"judge",question:"customs",translate:"海关",options:["正确","错误"],answer:"正确"},
       // ========== 10道 match 匹配 ==========
-      {type:"match",q:"customs officer",trans:"",options:["空乘","海关官员","司机","店员"],answer:"海关官员"},
-      {type:"match",q:"boarding pass",trans:"",options:["行李牌","登机牌","身份证","机票"],answer:"登机牌"},
-      {type:"match",q:"baggage claim",trans:"",options:["值机柜台","行李提取区","安检口","登机口"],answer:"行李提取区"},
-      {type:"match",q:"flight attendant",trans:"",options:["地勤","空乘","海关人员","司机"],answer:"空乘"},
-      {type:"match",q:"passport",trans:"",options:["护照","签证","机票","房卡"],answer:"护照"},
-      {type:"match",q:"trolley",trans:"",options:["行李箱","手推车","背包","纸箱"],answer:"手推车"},
-      {type:"match",q:"overweight",trans:"",options:["免税","超重","延误","转机"],answer:"超重"},
-      {type:"match",q:"exchange desk",trans:"",options:["失物招领","货币兑换台","服务台","售票窗口"],answer:"货币兑换台"},
-      {type:"match",q:"gate",trans:"",options:["登机口","出口","电梯","停车场"],answer:"登机口"},
-      {type:"match",q:"delay",trans:"",options:["准点","延误","取消","中转"],answer:"延误"}
+      {type:"match",question:"customs officer",translate:"",options:["空乘","海关官员","司机","店员"],answer:"海关官员"},
+      {type:"match",question:"boarding pass",translate:"",options:["行李牌","登机牌","身份证","机票"],answer:"登机牌"},
+      {type:"match",question:"baggage claim",translate:"",options:["值机柜台","行李提取区","安检口","登机口"],answer:"行李提取区"},
+      {type:"match",question:"flight attendant",translate:"",options:["地勤","空乘","海关人员","司机"],answer:"空乘"},
+      {type:"match",question:"passport",translate:"",options:["护照","签证","机票","房卡"],answer:"护照"},
+      {type:"match",question:"trolley",translate:"",options:["行李箱","手推车","背包","纸箱"],answer:"手推车"},
+      {type:"match",question:"overweight",translate:"",options:["免税","超重","延误","转机"],answer:"超重"},
+      {type:"match",question:"exchange desk",translate:"",options:["失物招领","货币兑换台","服务台","售票窗口"],answer:"货币兑换台"},
+      {type:"match",question:"gate",translate:"",options:["登机口","出口","电梯","停车场"],answer:"登机口"},
+      {type:"match",question:"delay",translate:"",options:["准点","延误","取消","中转"],answer:"延误"}
     ]
   },
   // 场景2：酒店预订、前台入住沟通 | 10单选+10判断+10匹配 =30题
@@ -447,44 +434,42 @@ const ALL_SCENES = [
     sceneName: "酒店预订、前台入住沟通",
     unlock: false,
     isPass: false,
-    finishOriginalRound: false,
     progressIndex: 0,
     wrongList: [],
-    answeredList:[],
     questions: [
       // ========== 10道 choice 单选 ==========
-      {type:"choice",q:"Do you have a reservation?",trans:"您有提前预订吗？",options:["Yes, under my name.","I don't eat beef.","Where is the subway?","I need two tickets."],answer:"Yes, under my name."},
-      {type:"choice",q:"I booked a double room for three nights.",trans:"我预订了一间双人房，住三晚。",options:["Wait a minute, let me check.","The food is delicious.","I want to change money.","This bag is mine."],answer:"Wait a minute, let me check."},
-      {type:"choice",q:"What time is check-out?",trans:"退房时间是几点？",options:["12 noon.","I can't swim.","The shop closes late.","It's very hot today."],answer:"12 noon."},
-      {type:"choice",q:"Can I get an extra pillow?",trans:"可以多给我一个枕头吗？",options:["Of course, right away.","I don't need food.","The bus leaves soon.","I lost my wallet."],answer:"Of course, right away."},
-      {type:"choice",q:"The air conditioner in my room doesn't work.",trans:"我房间的空调坏了。",options:["We will send someone to fix it.","I want breakfast now.","The street is noisy.","I need a map."],answer:"We will send someone to fix it."},
-      {type:"choice",q:"Do you offer laundry service?",trans:"你们提供洗衣服务吗？",options:["Yes, it costs extra.","I want to rent a car.","The park is far away.","My luggage is heavy."],answer:"Yes, it costs extra."},
-      {type:"choice",q:"Where is the breakfast area?",trans:"早餐区在哪里？",options:["On the first floor.","I don't eat meat.","The subway station is nearby.","I want to exchange cash."],answer:"On the first floor."},
-      {type:"choice",q:"Can I store luggage after check-out?",trans:"退房后可以寄存行李吗？",options:["Free storage for 6 hours.","No luggage storage.","Storage needs deposit.","Only hotel guests can't store bags."],answer:"Free storage for 6 hours."},
-      {type:"choice",q:"My room card cannot open the door.",trans:"房卡打不开房门。",options:["I'll reactivate your card now.","Cards expire automatically.","You need to buy new cards.","Change another room directly."],answer:"I'll reactivate your card now."},
-      {type:"choice",q:"Is there hot water 24 hours?",trans:"是24小时供应热水吗？",options:["Yes, all rooms have hot water.","Hot water only available in morning.","Pay extra for hot water.","Hot water broken today."],answer:"Yes, all rooms have hot water."},
+      {type:"choice",question:"Do you have a reservation?",translate:"您有提前预订吗？",options:["Yes, under my name.","I don't eat beef.","Where is the subway?","I need two tickets."],answer:"Yes, under my name."},
+      {type:"choice",question:"I booked a double room for three nights.",translate:"我预订了一间双人房，住三晚。",options:["Wait a minute, let me check.","The food is delicious.","I want to change money.","This bag is mine."],answer:"Wait a minute, let me check."},
+      {type:"choice",question:"What time is check-out?",translate:"退房时间是几点？",options:["12 noon.","I can't swim.","The shop closes late.","It's very hot today."],answer:"12 noon."},
+      {type:"choice",question:"Can I get an extra pillow?",translate:"可以多给我一个枕头吗？",options:["Of course, right away.","I don't need food.","The bus leaves soon.","I lost my wallet."],answer:"Of course, right away."},
+      {type:"choice",question:"The air conditioner in my room doesn't work.",translate:"我房间的空调坏了。",options:["We will send someone to fix it.","I want breakfast now.","The street is noisy.","I need a map."],answer:"We will send someone to fix it."},
+      {type:"choice",question:"Do you offer laundry service?",translate:"你们提供洗衣服务吗？",options:["Yes, it costs extra.","I want to rent a car.","The park is far away.","My luggage is heavy."],answer:"Yes, it costs extra."},
+      {type:"choice",question:"Where is the breakfast area?",translate:"早餐区在哪里？",options:["On the first floor.","I don't eat meat.","The subway station is nearby.","I want to exchange cash."],answer:"On the first floor."},
+      {type:"choice",question:"Can I store luggage after check-out?",translate:"退房后可以寄存行李吗？",options:["Free storage for 6 hours.","No luggage storage.","Storage needs deposit.","Only hotel guests can't store bags."],answer:"Free storage for 6 hours."},
+      {type:"choice",question:"My room card cannot open the door.",translate:"房卡打不开房门。",options:["I'll reactivate your card now.","Cards expire automatically.","You need to buy new cards.","Change another room directly."],answer:"I'll reactivate your card now."},
+      {type:"choice",question:"Is there hot water 24 hours?",translate:"是24小时供应热水吗？",options:["Yes, all rooms have hot water.","Hot water only available in morning.","Pay extra for hot water.","Hot water broken today."],answer:"Yes, all rooms have hot water."},
       // ========== 10道 judge 判断 ==========
-      {type:"judge",q:"check-in",trans:"办理入住",options:["正确","错误"],answer:"正确"},
-      {type:"judge",q:"suite",trans:"套房",options:["正确","错误"],answer:"正确"},
-      {type:"judge",q:"extra bed",trans:"加床",options:["正确","错误"],answer:"正确"},
-      {type:"judge",q:"housekeeping",trans:"客房保洁",options:["正确","错误"],answer:"正确"},
-      {type:"judge",q:"air conditioner",trans:"空调",options:["正确","错误"],answer:"正确"},
-      {type:"judge",q:"laundry service",trans:"洗衣服务",options:["正确","错误"],answer:"正确"},
-      {type:"judge",q:"elevator",trans:"电梯",options:["正确","错误"],answer:"正确"},
-      {type:"judge",q:"buffet breakfast",trans:"自助早餐",options:["正确","错误"],answer:"正确"},
-      {type:"judge",q:"safe box",trans:"保险箱",options:["正确","错误"],answer:"正确"},
-      {type:"judge",q:"tap water",trans:"可直接饮用自来水",options:["正确","错误"],answer:"错误"},
+      {type:"judge",question:"check-in",translate:"办理入住",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"suite",translate:"套房",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"extra bed",translate:"加床",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"housekeeping",translate:"客房保洁",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"air conditioner",translate:"空调",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"laundry service",translate:"洗衣服务",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"elevator",translate:"电梯",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"buffet breakfast",translate:"自助早餐",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"safe box",translate:"保险箱",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"tap water",translate:"可直接饮用自来水",options:["正确","错误"],answer:"错误"},
       // ========== 10道 match 匹配 ==========
-      {type:"match",q:"front desk",trans:"",options:["后厨","前台","停车场","电梯"],answer:"前台"},
-      {type:"match",q:"room key card",trans:"",options:["房卡","门牌号","门禁卡","银行卡"],answer:"房卡"},
-      {type:"match",q:"housekeeping",trans:"",options:["维修人员","客房保洁","保安","前台经理"],answer:"客房保洁"},
-      {type:"match",q:"wifi password",trans:"",options:["房间密码","无线网络密码","门锁密码","保险箱密码"],answer:"无线网络密码"},
-      {type:"match",q:"elevator",trans:"",options:["电梯","楼梯","扶梯","通道"],answer:"电梯"},
-      {type:"match",q:"safe box",trans:"",options:["快递箱","保险箱","收纳盒","冰箱"],answer:"保险箱"},
-      {type:"match",q:"luggage storage",trans:"",options:["行李寄存处","储物间","快递柜","衣帽间"],answer:"行李寄存处"},
-      {type:"match",q:"maintenance staff",trans:"",options:["保洁","维修人员","厨师","导购"],answer:"维修人员"},
-      {type:"match",q:"buffet",trans:"",options:["单点餐食","自助餐","夜宵","下午茶"],answer:"自助餐"},
-      {type:"match",q:"check-out",trans:"",options:["入住","退房","续住","换房"],answer:"退房"}
+      {type:"match",question:"front desk",translate:"",options:["后厨","前台","停车场","电梯"],answer:"前台"},
+      {type:"match",question:"room key card",translate:"",options:["房卡","门牌号","门禁卡","银行卡"],answer:"房卡"},
+      {type:"match",question:"housekeeping",translate:"",options:["维修人员","客房保洁","保安","前台经理"],answer:"客房保洁"},
+      {type:"match",question:"wifi password",translate:"",options:["房间密码","无线网络密码","门锁密码","保险箱密码"],answer:"无线网络密码"},
+      {type:"match",question:"elevator",translate:"",options:["电梯","楼梯","扶梯","通道"],answer:"电梯"},
+      {type:"match",question:"safe box",translate:"",options:["快递箱","保险箱","收纳盒","冰箱"],answer:"保险箱"},
+      {type:"match",question:"luggage storage",translate:"",options:["行李寄存处","储物间","快递柜","衣帽间"],answer:"行李寄存处"},
+      {type:"match",question:"maintenance staff",translate:"",options:["保洁","维修人员","厨师","导购"],answer:"维修人员"},
+      {type:"match",question:"buffet",translate:"",options:["单点餐食","自助餐","夜宵","下午茶"],answer:"自助餐"},
+      {type:"match",question:"check-out",translate:"",options:["入住","退房","续住","换房"],answer:"退房"}
     ]
   },
   // 场景3：市内交通（打车、地铁、公交） | 10单选+10判断+10匹配 =30题
@@ -493,68 +478,267 @@ const ALL_SCENES = [
     sceneName: "市内交通（打车、地铁、公交）",
     unlock: false,
     isPass: false,
-    finishOriginalRound: false,
     progressIndex: 0,
     wrongList: [],
-    answeredList:[],
     questions: [
       // ========== 10道 choice 单选 ==========
-      {type:"choice",q:"Could you take me to Central Square?",trans:"麻烦载我去中央广场。",options:["Sure, fasten your seat belt.","I don't have cash.","The shop is closed.","I need a drink."],answer:"Sure, fasten your seat belt."},
-      {type:"choice",q:"Which line should I take to the museum?",trans:"去博物馆需要坐几号线？",options:["Take line 3 and transfer once.","The museum is free today.","I want to buy snacks.","The weather is nice."],answer:"Take line 3 and transfer once."},
-      {type:"choice",q:"Does this bus go to the shopping mall?",trans:"这辆公交到商场吗？",options:["Yes, get off at the third stop.","The mall opens at ten.","I want to buy shoes.","The road is blocked."],answer:"Yes, get off at the third stop."},
-      {type:"choice",q:"We might hit a traffic jam in rush hour.",trans:"高峰时段我们可能会遇上堵车。",options:["That's okay, I have enough time.","I need to arrive immediately.","I don't know the way.","The taxi is too expensive."],answer:"That's okay, I have enough time."},
-      {type:"choice",q:"Where can I cross the road safely?",trans:"哪里可以安全过马路？",options:["Use the crosswalk ahead.","Don't walk on the road.","Cars drive fast here.","The street is narrow."],answer:"Use the crosswalk ahead."},
-      {type:"choice",q:"I want to rent a car for two days.",trans:"我想租一辆车用两天。",options:["Please show your driver's license.","Driving here is dangerous.","I only take taxi.","The bus is cheaper."],answer:"Please show your driver's license."},
-      {type:"choice",q:"How much is a single subway ticket?",trans:"地铁单程票多少钱？",options:["Two dollars per person.","The bus is cheaper.","I have a transport card.","The station is far away."],answer:"Two dollars per person."},
-      {type:"choice",q:"Do I need to pay toll fees on this highway?",trans:"走这条高速需要交过路费吗？",options:["Yes, cash or card are both available.","Highways are free today.","I don't drive on highways.","Taxis cover all fees."],answer:"Yes, cash or card are both available."},
-      {type:"choice",q:"Could you show me the subway route map?",trans:"可以给我看下地铁路线图吗？",options:["Here you go, it's on the wall.","Maps cost extra money.","I don't know the map.","The station staff can help you."],answer:"Here you go, it's on the wall."},
-      {type:"choice",q:"Can I put my suitcase on the luggage rack?",trans:"我能把行李箱放在行李架上吗？",options:["Yes, it's free to use.","Large bags are not allowed.","You have to hold it.","Racks are all occupied."],answer:"Yes, it's free to use."},
+      {type:"choice",question:"Could you take me to Central Square?",translate:"麻烦载我去中央广场。",options:["Sure, fasten your seat belt.","I don't have cash.","The shop is closed.","I need a drink."],answer:"Sure, fasten your seat belt."},
+      {type:"choice",question:"Which line should I take to the museum?",translate:"去博物馆需要坐几号线？",options:["Take line 3 and transfer once.","The museum is free today.","I want to buy snacks.","The weather is nice."],answer:"Take line 3 and transfer once."},
+      {type:"choice",question:"Does this bus go to the shopping mall?",translate:"这辆公交到商场吗？",options:["Yes, get off at the third stop.","The mall opens at ten.","I want to buy shoes.","The road is blocked."],answer:"Yes, get off at the third stop."},
+      {type:"choice",question:"We might hit a traffic jam in rush hour.",translate:"高峰时段我们可能会遇上堵车。",options:["That's okay, I have enough time.","I need to arrive immediately.","I don't know the way.","The taxi is too expensive."],answer:"That's okay, I have enough time."},
+      {type:"choice",question:"Where can I cross the road safely?",translate:"哪里可以安全过马路？",options:["Use the crosswalk ahead.","Don't walk on the road.","Cars drive fast here.","The street is narrow."],answer:"Use the crosswalk ahead."},
+      {type:"choice",question:"I want to rent a car for two days.",translate:"我想租一辆车用两天。",options:["Please show your driver's license.","Driving here is dangerous.","I only take taxi.","The bus is cheaper."],answer:"Please show your driver's license."},
+      {type:"choice",question:"How much is a single subway ticket?",translate:"地铁单程票多少钱？",options:["Two dollars per person.","The bus is cheaper.","I have a transport card.","The station is far away."],answer:"Two dollars per person."},
+      {type:"choice",question:"Do I need to pay toll fees on this highway?",translate:"走这条高速需要交过路费吗？",options:["Yes, cash or card are both available.","Highways are free today.","I don't drive on highways.","Taxis cover all fees."],answer:"Yes, cash or card are both available."},
+      {type:"choice",question:"Could you show me the subway route map?",translate:"可以给我看下地铁路线图吗？",options:["Here you go, it's on the wall.","Maps cost extra money.","I don't know the map.","The station staff can help you."],answer:"Here you go, it's on the wall."},
+      {type:"choice",question:"Can I put my suitcase on the luggage rack?",translate:"我能把行李箱放在行李架上吗？",options:["Yes, it's free to use.","Large bags are not allowed.","You have to hold it.","Racks are all occupied."],answer:"Yes, it's free to use."},
       // ========== 10道 judge 判断 ==========
-      {type:"judge",q:"taxi meter",trans:"出租车计价器",options:["正确","错误"],answer:"正确"},
-      {type:"judge",q:"one-way ticket",trans:"单程票",options:["正确","错误"],answer:"正确"},
-      {type:"judge",q:"transfer",trans:"换乘",options:["正确","错误"],answer:"正确"},
-      {type:"judge",q:"traffic jam",trans:"堵车",options:["正确","错误"],answer:"正确"},
-      {type:"judge",q:"crosswalk",trans:"斑马线",options:["正确","错误"],answer:"正确"},
-      {type:"judge",q:"speed limit",trans:"限速",options:["正确","错误"],answer:"正确"},
-      {type:"judge",q:"parking lot",trans:"停车场",options:["正确","错误"],answer:"正确"},
-      {type:"judge",q:"destination",trans:"目的地",options:["正确","错误"],answer:"正确"},
-      {type:"judge",q:"delay",trans:"延误",options:["正确","错误"],answer:"正确"},
-      {type:"judge",q:"one-way street",trans:"双向车道",options:["正确","错误"],answer:"错误"},
+      {type:"judge",question:"taxi meter",translate:"出租车计价器",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"one-way ticket",translate:"单程票",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"transfer",translate:"换乘",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"traffic jam",translate:"堵车",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"crosswalk",translate:"斑马线",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"speed limit",translate:"限速",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"parking lot",translate:"停车场",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"destination",translate:"目的地",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"delay",translate:"延误",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"one-way street",translate:"双向车道",options:["正确","错误"],answer:"错误"},
       // ========== 10道 match 匹配 ==========
-      {type:"match",q:"subway station",trans:"",options:["汽车站","地铁站","高铁站","码头"],answer:"地铁站"},
-      {type:"match",q:"bus stop",trans:"",options:["公交站","候车厅","路口","天桥"],answer:"公交站"},
-      {type:"match",q:"traffic jam",trans:"",options:["交通事故","堵车","修路","限速"],answer:"堵车"},
-      {type:"match",q:"crosswalk",trans:"",options:["斑马线","人行道","天桥","地下通道"],answer:"斑马线"},
-      {type:"match",q:"car rental",trans:"",options:["租车","拼车","网约车","私家车"],answer:"租车"},
-      {type:"match",q:"platform",trans:"",options:["站台","车厢","检票口","安检区"],answer:"站台"},
-      {type:"match",q:"transport card",trans:"",options:["银行卡","交通卡","会员卡","电话卡"],answer:"交通卡"},
-      {type:"match",q:"toll fee",trans:"",options:["停车费","过路费","服务费","押金"],answer:"过路费"},
-      {type:"match",q:"route map",trans:"",options:["路线图","价格表","时刻表","站点表"],answer:"路线图"},
-      {type:"match",q:"luggage rack",trans:"",options:["行李架","储物柜","行李箱","背包区"],answer:"行李架"}
+      {type:"match",question:"subway station",translate:"",options:["汽车站","地铁站","高铁站","码头"],answer:"地铁站"},
+      {type:"match",question:"bus stop",translate:"",options:["公交站","候车厅","路口","天桥"],answer:"公交站"},
+      {type:"match",question:"traffic jam",translate:"",options:["交通事故","堵车","修路","限速"],answer:"堵车"},
+      {type:"match",question:"crosswalk",translate:"",options:["斑马线","人行道","天桥","地下通道"],answer:"斑马线"},
+      {type:"match",question:"car rental",translate:"",options:["租车","拼车","网约车","私家车"],answer:"租车"},
+      {type:"match",question:"platform",translate:"",options:["站台","车厢","检票口","安检区"],answer:"站台"},
+      {type:"match",question:"transport card",translate:"",options:["银行卡","交通卡","会员卡","电话卡"],answer:"交通卡"},
+      {type:"match",question:"toll fee",translate:"",options:["停车费","过路费","服务费","押金"],answer:"过路费"},
+      {type:"match",question:"route map",translate:"",options:["路线图","价格表","时刻表","站点表"],answer:"路线图"},
+      {type:"match",question:"luggage rack",translate:"",options:["行李架","储物柜","行李箱","背包区"],answer:"行李架"}
+    ]
+  },
+  // 场景4：餐厅点餐、用餐交流 | 10单选+10判断+10匹配 =30题
+  {
+    sceneId: 4,
+    sceneName: "餐厅点餐、用餐交流",
+    unlock: false,
+    isPass: false,
+    progressIndex: 0,
+    wrongList: [],
+    questions: [
+      // ========== 10道 choice 单选 ==========
+      {type:"choice",question:"May I see the menu, please?",translate:"麻烦给我一份菜单。",options:["Here is your menu.","We don't have paper menus.","Food is sold out.","Please wait outside."],answer:"Here is your menu."},
+      {type:"choice",question:"What's your signature dish?",translate:"你们的招牌菜是什么？",options:["Grilled salmon is our best seller.","All dishes taste the same.","We only serve vegetable.","The meat is very expensive."],answer:"Grilled salmon is our best seller."},
+      {type:"choice",question:"I'd like my steak medium rare.",translate:"我的牛排要三分熟。",options:["Noted, it will be ready soon.","We only serve well-done.","Steaks take one hour.","We don't have steak today."],answer:"Noted, it will be ready soon."},
+      {type:"choice",question:"Do you have any vegetarian options?",translate:"你们有素食菜品吗？",options:["Yes, our salad plate is popular.","We only serve meat.","Vegetables cost extra.","Salads are sold out."],answer:"Yes, our salad plate is popular."},
+      {type:"choice",question:"Can I have a glass of lemon water?",translate:"能给我一杯柠檬水吗？",options:["Free drinking water for guests.","Drinks need extra payment.","We only sell juice.","Water machine broken."],answer:"Free drinking water for guests."},
+      {type:"choice",question:"How long will my food take?",translate:"我的餐品还要多久上？",options:["About ten minutes.","Food needs one hour.","Kitchen is closed.","No food available now."],answer:"About ten minutes."},
+      {type:"choice",question:"Can I change my order?",translate:"我可以更换点的菜品吗？",options:["You can change before cooking.","Orders cannot be changed.","Change needs extra fee.","All dishes are already cooked."],answer:"You can change before cooking."},
+      {type:"choice",question:"Could we get the bill now?",translate:"麻烦现在结账。",options:["I'll bring your bill right away.","Checkout after all guests leave.","Cash only for checkout.","Bill printer broken."],answer:"I'll bring your bill right away."},
+      {type:"choice",question:"Do you accept credit card payment?",translate:"可以刷信用卡吗？",options:["All cards are supported.","Only cash and mobile pay.","No card service.","Foreign cards not allowed."],answer:"All cards are supported."},
+      {type:"choice",question:"Can we take leftover food away?",translate:"剩下的食物可以打包带走吗？",options:["We provide free takeaway boxes.","Takeaway boxes cost money.","No packing service.","Leftovers must be discarded."],answer:"We provide free takeaway boxes."},
+      // ========== 10道 judge 判断 ==========
+      {type:"judge",question:"appetizer",translate:"开胃小菜",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"medium rare",translate:"三分熟牛排",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"dessert",translate:"甜品",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"vegetarian",translate:"素食者",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"beverage",translate:"饮品",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"tip",translate:"小费",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"takeaway box",translate:"打包盒",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"main course",translate:"主食主菜",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"menu",translate:"菜单",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"spicy",translate:"清淡的",options:["正确","错误"],answer:"错误"},
+      // ========== 10道 match 匹配 ==========
+      {type:"match",question:"waiter",translate:"",options:["厨师","服务员","店长","收银员"],answer:"服务员"},
+      {type:"match",question:"dessert",translate:"",options:["主食","甜品","汤品","饮品"],answer:"甜品"},
+      {type:"match",question:"beverage",translate:"",options:["主食","饮品","酱料","配菜"],answer:"饮品"},
+      {type:"match",question:"bill",translate:"",options:["菜单","账单","优惠券","打包袋"],answer:"账单"},
+      {type:"match",question:"vegetarian meal",translate:"",options:["肉食套餐","素食餐品","儿童套餐","双人餐"],answer:"素食餐品"},
+      {type:"match",question:"medium rare",translate:"",options:["全熟","三分熟","五分熟","七分熟"],answer:"三分熟"},
+      {type:"match",question:"appetizer",translate:"",options:["主菜","开胃小菜","甜品","酒水"],answer:"开胃小菜"},
+      {type:"match",question:"takeaway box",translate:"",options:["餐盘","打包盒","水杯","刀叉"],answer:"打包盒"},
+      {type:"match",question:"signature dish",translate:"",options:["特价菜","招牌菜","素食菜","汤品"],answer:"招牌菜"},
+      {type:"match",question:"tip",translate:"",options:["折扣","小费","税费","押金"],answer:"小费"}
+    ]
+  },
+  // 场景5：超市&便利店采购 | 10单选+10判断+10匹配 =30题
+  {
+    sceneId: 5,
+    sceneName: "超市&便利店采购",
+    unlock: false,
+    isPass: false,
+    progressIndex: 0,
+    wrongList: [],
+    questions: [
+      // ========== 10道 choice 单选 ==========
+      {type:"choice",question:"Where can I find fresh fruits?",translate:"新鲜水果区在哪里？",options:["They are on the second aisle.","Fruits are not fresh today.","We only sell frozen fruit.","Fruits are at checkout counter."],answer:"They are on the second aisle."},
+      {type:"choice",question:"Do you provide plastic bags?",translate:"你们提供塑料袋吗？",options:["Plastic bags cost extra.","Bags are free for all customers.","We only have paper bags.","No bags are available."],answer:"Plastic bags cost extra."},
+      {type:"choice",question:"Can I pay by mobile payment?",translate:"可以手机支付吗？",options:["Yes, we accept all mobile pay.","Only cash is accepted.","Cards work better.","Payment machines are broken."],answer:"Yes, we accept all mobile pay."},
+      {type:"choice",question:"This milk has passed its expiry date.",translate:"这盒牛奶已经过期了。",options:["Sorry, I will exchange a new one for you.","Expired food can still be eaten.","We don't take returns.","Milk cannot be refunded."],answer:"Sorry, I will exchange a new one for you."},
+      {type:"choice",question:"Where is the dairy section?",translate:"乳制品区域在哪？",options:["Aisle 4, left side.","Dairy products sold outside.","No dairy goods today.","All dairy on the top shelf."],answer:"Aisle 4, left side."},
+      {type:"choice",question:"Can I get a shopping basket?",translate:"可以拿一个购物篮吗？",options:["Baskets are at the entrance.","Baskets need deposit.","Only shopping carts available.","All baskets are broken."],answer:"Baskets are at the entrance."},
+      {type:"choice",question:"Are these goods on sale today?",translate:"这些商品今天打折吗？",options:["Yellow tags are discounted items.","All goods full price.","Discounts start tomorrow.","Sale goods are sold out."],answer:"Yellow tags are discounted items."},
+      {type:"choice",question:"Can I return food after opening?",translate:"开封食品可以退货吗？",options:["Opened food cannot be returned.","All food supports 7-day return.","Pay return service fee.","Only unopened goods refundable."],answer:"Opened food cannot be returned."},
+      {type:"choice",question:"Do you sell reusable shopping bags?",translate:"售卖环保购物袋吗？",options:["We have eco bags at checkout.","No eco bags for sale.","Only plastic bags available.","Eco bags free for VIP."],answer:"We have eco bags at checkout."},
+      {type:"choice",question:"Where is bottled drinking water?",translate:"瓶装饮用水在哪里？",options:["Near the checkout counter.","Water only in beverage aisle.","No drinking water in store.","Water sold outside shop."],answer:"Near the checkout counter."},
+      // ========== 10道 judge 判断 ==========
+      {type:"judge",question:"expiry date",translate:"保质期、到期日",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"discount",translate:"折扣",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"refund",translate:"退货退款",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"shopping cart",translate:"购物车",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"checkout counter",translate:"收银台",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"price tag",translate:"价签",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"eco bag",translate:"环保袋",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"dairy product",translate:"乳制品",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"frozen food",translate:"冷冻食品",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"aisle",translate:"收银通道",options:["正确","错误"],answer:"错误"},
+      // ========== 10道 match 匹配 ==========
+      {type:"match",question:"shopping cart",translate:"",options:["购物篮","购物车","收纳袋","快递箱"],answer:"购物车"},
+      {type:"match",question:"checkout counter",translate:"",options:["收银台","称重台","货架","储物区"],answer:"收银台"},
+      {type:"match",question:"price tag",translate:"",options:["价签","小票","优惠券","商品条码"],answer:"价签"},
+      {type:"match",question:"expiry date",translate:"",options:["生产日期","保质期","折扣日期","上架日期"],answer:"保质期"},
+      {type:"match",question:"discount",translate:"",options:["原价","折扣","押金","税费"],answer:"折扣"},
+      {type:"match",question:"refund",translate:"",options:["换货","退款","寄存","积分"],answer:"退款"},
+      {type:"match",question:"eco bag",translate:"",options:["塑料袋","环保布袋","礼盒","包装袋"],answer:"环保布袋"},
+      {type:"match",question:"dairy section",translate:"",options:["生鲜区","乳制品区","零食区","饮料区"],answer:"乳制品区"},
+      {type:"match",question:"frozen food",translate:"",options:["常温食品","冷冻食品","速食","生鲜肉类"],answer:"冷冻食品"},
+      {type:"match",question:"receipt",translate:"",options:["价签","购物小票","会员卡","优惠券"],answer:"购物小票"}
+    ]
+  },
+  // 场景6：商场购物、退换货咨询 | 10单选+10判断+10匹配 =30题
+  {
+    sceneId: 6,
+    sceneName: "商场购物、退换货咨询",
+    unlock: false,
+    isPass: false,
+    progressIndex: 0,
+    wrongList: [],
+    questions: [
+      // ========== 10道 choice 单选 ==========
+      {type:"choice",question:"I want to try this coat on.",translate:"我想试穿这件外套。",options:["The fitting room is over there.","Coats cannot be tried on.","You need to buy first.","All coats are final sale."],answer:"The fitting room is over there."},
+      {type:"choice",question:"Can I return this shirt within seven days?",translate:"这件衬衫七天内可以退货吗？",options:["Yes, keep your receipt intact.","No returns after purchase.","Only exchange is allowed.","Returns cost service fee."],answer:"Yes, keep your receipt intact."},
+      {type:"choice",question:"Does this coupon work for all goods?",translate:"这张优惠券所有商品都能用吗？",options:["Only for clothes section.","All products support this coupon.","Coupons expired already.","Coupons need extra cost."],answer:"Only for clothes section."},
+      {type:"choice",question:"Could you help me find shoes in size 37?",translate:"能帮我找37码的鞋子吗？",options:["Wait a minute, I will check stock.","We don't have size 37.","All shoes are same size.","Shoes are out of stock."],answer:"Wait a minute, I will check stock."},
+      {type:"choice",question:"Where is the fitting room?",translate:"试衣间在哪里？",options:["Second floor clothing area.","No fitting rooms in mall.","Fitting rooms only for VIP.","Fitting rooms closed today."],answer:"Second floor clothing area."},
+      {type:"choice",question:"Can I exchange this broken bag?",translate:"破损包包可以换货吗？",options:["Within 30 days for quality issues.","All bags cannot exchange.","Exchange requires original box only.","Broken goods no after-sales."],answer:"Within 30 days for quality issues."},
+      {type:"choice",question:"What sizes do you have for this dress?",translate:"这条裙子有哪些尺码？",options:["S/M/L/XL four sizes.","Only one size available.","Oversize only.","Kids size only."],answer:"S/M/L/XL four sizes."},
+      {type:"choice",question:"Do you have member discount?",translate:"会员有折扣吗？",options:["Members get 10% off daily.","No member discount.","Discount only on holidays.","New members no discount."],answer:"Members get 10% off daily."},
+      {type:"choice",question:"Can I get paper shopping bags?",translate:"可以给纸质购物袋吗？",options:["Paper bags are free for clothes.","Paper bags cost money.","Only plastic bags provided.","No shopping bags supplied."],answer:"Paper bags are free for clothes."},
+      {type:"choice",question:"Is this item clearance sale?",translate:"这件商品是清仓款吗？",options:["Clearance goods no return or exchange.","Clearance supports full refund.","Clearance can exchange freely.","All clearance items new arrivals."],answer:"Clearance goods no return or exchange."},
+      // ========== 10道 judge 判断 ==========
+      {type:"judge",question:"size",translate:"尺码",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"receipt",translate:"购物小票",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"fitting room",translate:"试衣间",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"discount coupon",translate:"折扣券",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"original price",translate:"原价",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"sales assistant",translate:"导购员",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"exchange",translate:"换货",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"clearance",translate:"清仓特卖",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"member card",translate:"会员卡",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"stock",translate:"缺货",options:["正确","错误"],answer:"错误"},
+      // ========== 10道 match 匹配 ==========
+      {type:"match",question:"fitting room",translate:"",options:["仓库","试衣间","收银台","电梯"],answer:"试衣间"},
+      {type:"match",question:"receipt",translate:"",options:["购物小票","会员卡","优惠券","价签"],answer:"购物小票"},
+      {type:"match",question:"discount coupon",translate:"",options:["会员卡","折扣券","积分卡","发票"],answer:"折扣券"},
+      {type:"match",question:"sales assistant",translate:"",options:["保洁员","导购员","收银员","保安"],answer:"导购员"},
+      {type:"match",question:"size",translate:"",options:["款式","尺码","面料","颜色"],answer:"尺码"},
+      {type:"match",question:"exchange service",translate:"",options:["退换货服务","寄存服务","打包服务","会员服务"],answer:"退换货服务"},
+      {type:"match",question:"clearance goods",translate:"",options:["新品","清仓商品","限量款","联名款"],answer:"清仓商品"},
+      {type:"match",question:"member card",translate:"",options:["折扣券","会员卡","购物小票","礼品卡"],answer:"会员卡"},
+      {type:"match",question:"in stock",translate:"",options:["缺货","有库存","断码","下架"],answer:"有库存"},
+      {type:"match",question:"original price",translate:"",options:["原价","折后价","会员价","清仓价"],answer:"原价"}
+    ]
+  },
+  // 场景7：景区游览、购票、问路 | 10单选+10判断+10匹配 =30题
+  {
+    sceneId: 7,
+    sceneName: "景区游览、购票、问路",
+    unlock: false,
+    isPass: false,
+    progressIndex: 0,
+    wrongList: [],
+    questions: [
+      // ========== 10道 choice 单选 ==========
+      {type:"choice",question:"How much is the entrance ticket?",translate:"门票多少钱一张？",options:["Adults 15 dollars, kids half price.","Tickets are free today.","We only sell group tickets.","Ticket office is closed."],answer:"Adults 15 dollars, kids half price."},
+      {type:"choice",question:"Is there a restroom inside the park?",translate:"园区内有卫生间吗？",options:["Restrooms are beside the lake.","No public restrooms here.","You need to go outside.","Restrooms charge money."],answer:"Restrooms are beside the lake."},
+      {type:"choice",question:"Could you tell me the way to the viewing platform?",translate:"能告诉我观景台怎么走吗？",options:["Walk straight for five minutes.","The platform is closed.","You need to take a shuttle bus.","It's too far to walk."],answer:"Walk straight for five minutes."},
+      {type:"choice",question:"Do you sell local souvenirs here?",translate:"这里卖本地纪念品吗？",options:["Yes, handmade crafts are available.","We only sell snacks.","Souvenirs are sold outside.","All souvenirs are out of stock."],answer:"Yes, handmade crafts are available."},
+      {type:"choice",question:"Does the shuttle bus need extra payment?",translate:"观光车需要额外付费吗？",options:["Shuttle bus included in ticket.","Bus fare separate charge.","Bus only for group tourists.","Shuttle service suspended."],answer:"Shuttle bus included in ticket."},
+      {type:"choice",question:"Can I take photos inside the exhibition hall?",translate:"展厅内可以拍照吗？",options:["No flash photography allowed.","No photos permitted at all.","Photos cost extra fees.","Only staff can take pictures."],answer:"No flash photography allowed."},
+      {type:"choice",question:"Where can I buy cold drinks?",translate:"哪里可以买冷饮？",options:["Small shop near the gate.","No drinks sold in scenic area.","Drinks only at ticket office.","Vending machines on hill top."],answer:"Small shop near the gate."},
+      {type:"choice",question:"Is there a parking area for visitors?",translate:"有游客停车场吗？",options:["Free parking for ticket holders.","Parking fee per hour.","No private car parking.","Parking area full today."],answer:"Free parking for ticket holders."},
+      {type:"choice",question:"How long can I stay inside the scenic spot?",translate:"景区游玩时长有限制吗？",options:["Open all day until closing time.","Only two hours per ticket.","Must leave before noon.","Visit limited to morning only."],answer:"Open all day until closing time."},
+      {type:"choice",question:"Do you provide paper scenic maps?",translate:"提供纸质导览图吗？",options:["Free paper maps at ticket booth.","Maps cost small fees.","Only electronic maps available.","All maps distributed out."],answer:"Free paper maps at ticket booth."},
+      // ========== 10道 judge 判断 ==========
+      {type:"judge",question:"scenic spot",translate:"景区",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"tour guide",translate:"导游",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"landscape",translate:"风景",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"shuttle bus",translate:"景区观光车",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"souvenir shop",translate:"纪念品商店",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"entrance ticket",translate:"大门门票",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"viewing platform",translate:"观景台",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"exhibition hall",translate:"展厅",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"vending machine",translate:"自动贩卖机",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"map",translate:"门票",options:["正确","错误"],answer:"错误"},
+      // ========== 10道 match 匹配 ==========
+      {type:"match",question:"tour guide",translate:"",options:["摄影师","导游","售票员","保洁"],answer:"导游"},
+      {type:"match",question:"map of scenic area",translate:"",options:["景区导览图","城市地图","路线时刻表","门票背面"],answer:"景区导览图"},
+      {type:"match",question:"shuttle bus",translate:"",options:["观光大巴","出租车","地铁","私家车"],answer:"观光大巴"},
+      {type:"match",question:"souvenir shop",translate:"",options:["小吃摊","纪念品商店","售票亭","休息区"],answer:"纪念品商店"},
+      {type:"match",question:"entrance ticket",translate:"",options:["观光车票","大门门票","导览图","文创礼品"],answer:"大门门票"},
+      {type:"match",question:"viewing platform",translate:"",options:["休息亭","观景台","游船码头","登山口"],answer:"观景台"},
+      {type:"match",question:"exhibition hall",translate:"",options:["户外广场","室内展厅","游客中心","纪念品店"],answer:"室内展厅"},
+      {type:"match",question:"ticket booth",translate:"",options:["游客餐厅","售票窗口","卫生间","停车场"],answer:"售票窗口"},
+      {type:"match",question:"vending machine",translate:"",options:["人工商店","自动贩卖机","储物柜","寄存柜"],answer:"自动贩卖机"},
+      {type:"match",question:"scenic spot",translate:"",options:["城市商圈","旅游景区","居民小区","交通枢纽"],answer:"旅游景区"}
+    ]
+  },
+  // 场景8：社交聚会、邀约结伴 | 10单选+10判断+10匹配 =30题
+  {
+    sceneId: 8,
+    sceneName: "社交聚会、邀约结伴",
+    unlock: false,
+    isPass: false,
+    progressIndex: 0,
+    wrongList: [],
+    questions: [
+      // ========== 10道 choice 单选 ==========
+      {type:"choice",question:"Would you like to join us for dinner tonight?",translate:"今晚要不要和我们一起吃饭？",options:["I'd love to, thanks for inviting me.","I don't eat dinner.","I have no money.","I hate eating outside."],answer:"I'd love to, thanks for inviting me."},
+      {type:"choice",question:"Where shall we meet before the party?",translate:"派对前我们在哪里碰面？",options:["Let's meet at the main gate.","I will come directly to the room.","I don't know the location.","Meet one hour later."],answer:"Let's meet at the main gate."},
+      {type:"choice",question:"Should I bring any food or drinks?",translate:"我需要带食物或者饮品吗？",options:["Just bring yourself, we prepare everything.","You need to bring your own drink.","Only desserts are needed.","All guests bring dishes."],answer:"Just bring yourself, we prepare everything."},
+      {type:"choice",question:"I'm glad to make new friends at this party.",translate:"很高兴能在派对认识新朋友。",options:["Me too, everyone here is friendly.","No one talks to strangers.","Parties are very boring.","I don't like meeting new people."],answer:"Me too, everyone here is friendly."},
+      {type:"choice",question:"What time will the party start?",translate:"派对几点开始？",options:["Seven o'clock in the evening.","The party starts at midnight.","No fixed starting time.","Party postponed to tomorrow."],answer:"Seven o'clock in the evening."},
+      {type:"choice",question:"Can I bring my friend to the get-together?",translate:"我可以带朋友一起来聚会吗？",options:["Tell me in advance if you bring extra guests.","No extra people allowed.","Each person can bring three friends.","All friends need separate tickets."],answer:"Tell me in advance if you bring extra guests."},
+      {type:"choice",question:"Sorry I'm running a little late.",translate:"不好意思我会稍微晚一点到。",options:["No rush, we will wait for you.","The party ends immediately.","Late guests cannot join.","You need to reschedule."],answer:"No rush, we will wait for you."},
+      {type:"choice",question:"What kind of snacks do you prepare?",translate:"准备了什么小点心？",options:["Fruit, cookies and juice.","Only spicy food.","No food supplied.","Hot pot only for guests."],answer:"Fruit, cookies and juice."},
+      {type:"choice",question:"I really enjoy chatting with you.",translate:"和你聊天很愉快。",options:["Same here, it's nice talking to you.","I don't like chatting.","I need to leave now.","Our conversation is boring."],answer:"Same here, it's nice talking to you."},
+      {type:"choice",question:"Can we plan another gathering next weekend?",translate:"下周末我们可以再约一次聚会吗？",options:["Sounds perfect, I'm free next weekend.","I will be busy all next week.","I don't like parties.","We can't meet again."],answer:"Sounds perfect, I'm free next weekend."},
+      // ========== 10道 judge 判断 ==========
+      {type:"judge",question:"invitation",translate:"邀约、邀请",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"get-together",translate:"小型聚会",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"appointment",translate:"约会、约定",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"party snack",translate:"派对点心",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"chat",translate:"闲聊、交谈",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"close friend",translate:"好友",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"punctual",translate:"迟到的",options:["正确","错误"],answer:"错误"},
+      {type:"judge",question:"guest",translate:"宾客",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"advance notice",translate:"提前告知",options:["正确","错误"],answer:"正确"},
+      {type:"judge",question:"postpone",translate:"准时到场",options:["正确","错误"],answer:"错误"},
+      // ========== 10道 match 匹配 ==========
+      {type:"match",question:"get-together",translate:"",options:["出差","小型聚会","面试","旅行"],answer:"小型聚会"},
+      {type:"match",question:"invitation",translate:"",options:["拒绝","邀约","迟到","缺席"],answer:"邀约"},
+      {type:"match",question:"appointment",translate:"",options:["临时取消","事先约定","临时碰面","独自出行"],answer:"事先约定"},
+      {type:"match",question:"party snack",translate:"",options:["派对点心","正餐主食","酒水饮料","餐后甜品"],answer:"派对点心"},
+      {type:"match",question:"close friend",translate:"",options:["同事","好友","邻居","同学"],answer:"好友"},
+      {type:"match",question:"guest",translate:"",options:["主人","宾客","服务员","路人"],answer:"宾客"},
+      {type:"match",question:"punctual",translate:"",options:["守时的","迟到的","早退的","缺席的"],answer:"守时的"},
+      {type:"match",question:"advance notice",translate:"",options:["临时通知","提前告知","事后说明","无需报备"],answer:"提前告知"},
+      {type:"match",question:"postpone",translate:"",options:["提前","推迟","取消","准时"],answer:"推迟"},
+      {type:"match",question:"main gate",translate:"",options:["侧门","正门","后门","电梯口"],answer:"正门"}
     ]
   }
 ];
 // =================================================================
 
-// 弹窗统一封装（修复缺失showModal，复用现有pop弹窗）
-function showModal(text, callback){
-  let html = `<p style="text-align:center;margin:8px 0;line-height:1.7">${text}</p><button class="btn" onclick="closeModalWrap()">确定</button>`;
-  window.modalGlobalCb = callback;
-  showPop(html);
-}
-function closeModalWrap(){
-  closePop();
-  if(window.modalGlobalCb) window.modalGlobalCb();
-  window.modalGlobalCb = null;
-}
-  
-// 中途退出答题，保存进度返回场景列表【修复saveGameData拼写错误】
-function exitQuiz(){
-  saveData();
-  document.getElementById("quiz-area").style.display = "none";
-  document.getElementById("scene-list").style.display = "block";
-}
-  
 // 全局数据
 let gameData = {
   lightGrain:0,
@@ -565,16 +749,18 @@ let gameData = {
     seedBag: {},
     toolBag: {},
     cropBag: {}
-  },
-  sceneSave: [] // 存储所有场景答题存档
+  }
 };
 let currentWarehouseTab = "seed";
 let currentShopTab = "seedShop";
 let selectLandIndex = null;
+
+// 答题全局变量
 let currentSceneData = null;
 let quizList = [];
 let quizIndex = 0;
 let quizReviewMode = false;
+let selectedAnswer = null;
 
 // 本地存储
 function loadData(){
@@ -583,7 +769,6 @@ function loadData(){
     gameData = JSON.parse(saveStr);
   }else{
     initLandData();
-    gameData.sceneSave = JSON.parse(JSON.stringify(ALL_SCENES));
   }
 }
 function saveData(){
@@ -611,7 +796,6 @@ document.querySelectorAll(".tab-item").forEach(tab=>{
     document.getElementById("page-"+target).classList.add("active");
     if(target === 'warehouse') renderWarehouse();
     if(target === 'shop') renderShop();
-    if(target === 'study') renderSceneList();
   }
 })
 
@@ -634,7 +818,7 @@ document.querySelectorAll(".s-tab").forEach(tab=>{
   }
 })
 
-// 弹窗基础函数（原有弹窗）
+// 弹窗
 function showPop(html,callback){
   document.getElementById("pop-body").innerHTML = html;
   document.getElementById("pop").style.display = "flex";
@@ -920,207 +1104,128 @@ function buyFertilizer(){
   }
 }
 
-// =====================【补齐缺失函数】渲染场景列表 renderSceneList =====================
+// =====================答题系统核心=====================
 function renderSceneList(){
   const wrap = document.getElementById("scene-list");
   wrap.innerHTML = "";
-  gameData.sceneSave.forEach(scene=>{
+  QUESTION_BANK.forEach(scene=>{
     const div = document.createElement("div");
-    div.className = "scene-item " + (scene.unlock ? "" : "lock");
-    div.innerHTML = `
-      <h4>${scene.sceneName}</h4>
-      <div style="margin:6px 0;font-size:14px;color:#666">共${scene.questions.length}道题目 | ${scene.isPass ? "✅已通关（练习模式）" : "🔒未通关"}</div>
-      <button class="btn" style="margin-top:8px" onclick="openSceneQuiz(gameData.sceneSave.find(s=>s.sceneId===${scene.sceneId}))">进入答题</button>
-    `;
-    if(!scene.unlock) div.style.opacity = "0.6";
+    div.className = "scene-item " + (scene.unlock?"":"lock");
+    let passTip = scene.isPass ? "✅已通关（再次刷题无光粒）" : "";
+    div.innerHTML = `<b>${scene.sceneName}</b>${passTip?`<div style="font-size:13px;color:#709967;margin-top:4px">${passTip}</div>`:""}`;
+    if(scene.unlock){
+      div.onclick = ()=>openSceneQuiz(scene);
+    }
     wrap.appendChild(div);
   })
 }
-
-// =====================答题系统核心【修复完整版】=====================
-// 打开场景答题入口
-function openSceneQuiz(scene) {
-    currentSceneData = scene;
-    // 兼容旧存档，自动初始化作答记录数组
-    if (!currentSceneData.answeredList) currentSceneData.answeredList = [];
-    quizList = [...currentSceneData.questions];
-    if (currentSceneData.isPass) {
-        quizReviewMode = false;
-    } else {
-        if(currentSceneData.finishOriginalRound && currentSceneData.wrongList.length > 0){
-            quizReviewMode = true;
-            quizList = [...currentSceneData.wrongList];
-        }else{
-            quizReviewMode = false;
-        }
-    }
-    quizIndex = currentSceneData.progressIndex || 0;
-    renderQuiz();
-    document.getElementById("scene-list").style.display = "none";
-    document.getElementById("quiz-area").style.display = "block";
+function openSceneQuiz(scene){
+  currentSceneData = scene;
+  quizReviewMode = false;
+  quizIndex = scene.progressIndex;
+  quizList = JSON.parse(JSON.stringify(scene.questions));
+  document.getElementById("scene-list").style.display = "none";
+  document.getElementById("quiz-area").style.display = "block";
+  renderQuiz();
 }
-
-// 渲染单题（修复DOM class匹配）
-function renderQuiz() {
-    if(quizIndex >= quizList.length){
-        return checkRoundComplete();
-    }
-    const q = quizList[quizIndex];
-    // 修正DOM选择器匹配页面HTML ID
-    document.getElementById("quiz-progress").textContent = `第${quizIndex+1}/${quizList.length}题`;
-    document.getElementById("q-content").textContent = q.q;
-    document.getElementById("q-trans").textContent = q.trans;
-
-    const wrap = document.getElementById("option-box");
-    wrap.innerHTML = "";
-    q.options.forEach(opt=>{
-        const btn = document.createElement("div");
-        btn.className = "opt-btn";
-        btn.textContent = opt;
-        btn.onclick = ()=> chooseOption(btn, opt, q);
-        wrap.appendChild(btn);
-    });
-
-    // 判断是否已经作答
-    if(currentSceneData.answeredList.includes(quizIndex)){
-        document.getElementById("btn-next").style.display = "block";
-        setTimeout(()=>{
-            showModal("该题目已经作答，请点击下一题继续作答");
-        },200);
-    }else{
-        document.getElementById("btn-next").style.display = "none";
-    }
-}
-
-// 选择答案
-function chooseOption(btnDom, userOpt, q) {
-    // 已经作答直接拦截
-    if(currentSceneData.answeredList.includes(quizIndex)) return;
-
-    // 标记本题已作答
-    if(!currentSceneData.answeredList.includes(quizIndex)){
-        currentSceneData.answeredList.push(quizIndex);
-    }
-
-    const isRight = userOpt === q.answer;
-    // 正确答案高亮
-    const allBtns = document.querySelectorAll(".opt-btn");
-    allBtns.forEach(b=>{
-        if(b.textContent === q.answer){
-            b.classList.add("correct-highlight");
-        }
-    });
-
-    let tipText = "";
-    if(isRight){
-        tipText = "回答正确！获得2✨光粒";
-        // 非练习模式答对给光粒
-        if (!currentSceneData.isPass) {
-            gameData.lightGrain += 2;
-            refreshResource();
-        }
-    }else{
-        tipText = "回答错误，请留意正确答案。";
-    }
-
-    showModal(tipText, ()=>{
-        document.getElementById("btn-next").style.display = "block";
-    });
-
-    // 错题处理逻辑
-    if(!currentSceneData.isPass){
-        if(!isRight){
-            // 答错加入错题列表
-            const hasExist = currentSceneData.wrongList.some(item=>item.q === q.q);
-            if(!hasExist){
-                currentSceneData.wrongList.push(q);
-            }
-        }
-    }
-    saveData();
-}
-
-// 下一题按钮
-function nextQuiz(){
-    quizIndex++;
-    currentSceneData.progressIndex = quizIndex;
-    saveData();
-    renderQuiz();
-}
-
-// 一轮题目全部遍历完成后的检测
-function checkRoundComplete(){
-    if(currentSceneData.isPass){
-        // 练习模式走完一轮，清空进度
-        currentSceneData.progressIndex = 0;
-        currentSceneData.answeredList = [];
-        quizIndex = 0;
-        saveData();
-        showModal("本轮练习完成，点击确定重新开始练习",()=>{
-            renderQuiz();
-        });
-        return;
-    }
-
+function renderQuiz(){
+  selectedAnswer = null;
+  const btnNext = document.getElementById("btn-next");
+  btnNext.style.display = "none";
+  if(quizIndex >= quizList.length){
     if(!quizReviewMode){
-        // 原题全部答完
-        currentSceneData.finishOriginalRound = true;
-        saveData();
-        if(currentSceneData.wrongList.length === 0){
-            // 无错题，直接通关
-            scenePass();
-        }else{
-            // 进入错题循环模式
-            quizReviewMode = true;
-            quizList = [...currentSceneData.wrongList];
-            quizIndex = 0;
-            currentSceneData.progressIndex = 0;
-            currentSceneData.answeredList = [];
-            saveData();
-            showModal("原题完成，现在开始订正错题",()=>{
-                renderQuiz();
-            });
-        }
+      // 首轮结束，进入错题复盘
+      if(currentSceneData.wrongList.length > 0){
+        quizReviewMode = true;
+        quizIndex = 0;
+        quizList = JSON.parse(JSON.stringify(currentSceneData.wrongList));
+        showPop("本轮答题结束，进入错题复盘！");
+      }else{
+        // 无错题，通关
+        scenePass();
+        return;
+      }
     }else{
-        // 错题模式一轮走完
-        if(currentSceneData.wrongList.length === 0){
-            scenePass();
-        }else{
-            // 依旧存在错题，再次循环
-            quizList = [...currentSceneData.wrongList];
-            quizIndex = 0;
-            currentSceneData.progressIndex = 0;
-            currentSceneData.answeredList = [];
-            saveData();
-            showModal("还有错题未答对，继续作答",()=>{
-                renderQuiz();
-            });
-        }
+      // 复盘完成
+      scenePass();
+      return;
     }
+  }
+  const q = quizList[quizIndex];
+  const totalLen = quizList.length;
+  document.getElementById("quiz-progress").innerText = quizReviewMode
+    ? `【错题复盘】第${quizIndex+1}/${totalLen}题`
+    : `第${quizIndex+1}/${totalLen}题`;
+  document.getElementById("q-content").innerText = q.question;
+  document.getElementById("q-trans").innerText = q.translate;
+  const optBox = document.getElementById("option-box");
+  optBox.innerHTML = "";
+  q.options.forEach(opt=>{
+    const btn = document.createElement("button");
+    btn.className = "opt-btn";
+    btn.innerText = opt;
+    btn.onclick = ()=>chooseOption(btn,opt,q);
+    optBox.appendChild(btn);
+  })
 }
-
-// 场景成功通关
-function scenePass(){
-    currentSceneData.isPass = true;
-    // 清空所有答题进度
-    currentSceneData.progressIndex = 0;
-    currentSceneData.answeredList = [];
-    currentSceneData.wrongList = [];
-    currentSceneData.finishOriginalRound = false;
+function chooseOption(btnDom,userOpt,q){
+  if(selectedAnswer) return;
+  selectedAnswer = userOpt;
+  document.querySelectorAll(".opt-btn").forEach(b=>b.classList.add("disabled"));
+  const btnNext = document.getElementById("btn-next");
+  btnNext.style.display = "block";
+  const isPassScene = currentSceneData.isPass;
+  if(userOpt === q.answer){
+    // 答对
+    if(!isPassScene){
+      gameData.lightGrain += 1;
+      refreshResource();
+    }
+    showPop(isPassScene
+      ? "回答正确！（已通关场景不再获得光粒）"
+      : "✅回答正确！获得✨1光粒");
+  }else{
+    // 答错
+    if(!quizReviewMode){
+      if(!currentSceneData.wrongList.find(item=>item.question === q.question)){
+        currentSceneData.wrongList.push(JSON.parse(JSON.stringify(q)));
+      }
+    }
+    showPop(`❌回答错误！正确答案：${q.answer}`);
+  }
+  // 下一题点击
+  btnNext.onclick = function(){
+    quizIndex++;
+    if(!quizReviewMode){
+      currentSceneData.progressIndex = quizIndex;
+    }
     saveData();
-    showModal("恭喜！本场景全部题目完成通关，可进入练习模式。",()=>{
-        exitQuiz();
-    });
+    renderQuiz();
+  }
+}
+function scenePass(){
+  currentSceneData.isPass = true;
+  // 解锁下一场景
+  const idx = QUESTION_BANK.findIndex(s=>s.sceneId === currentSceneData.sceneId);
+  if(idx+1 < QUESTION_BANK.length){
+    QUESTION_BANK[idx+1].unlock = true;
+  }
+  saveData();
+  document.getElementById("quiz-area").style.display = "none";
+  document.getElementById("scene-list").style.display = "block";
+  showPop("🎉恭喜！本场景全部通关，解锁下一学习场景！",()=>{
+    renderSceneList();
+  });
 }
 
-// =====================定时刷新农田倒计时=====================
+// 定时刷新农田倒计时
 setInterval(()=>{
   if(document.getElementById("page-farm").classList.contains("active")){
     renderFarm();
   }
 },1000);
 
-// =====================程序入口【补齐renderSceneList】=====================
+// 程序入口
 function init(){
   loadData();
   refreshResource();
@@ -1129,10 +1234,7 @@ function init(){
   renderSceneList();
   renderWarehouse();
 }
-// 绑定下一题按钮点击
-document.getElementById("btn-next").onclick = nextQuiz;
 init();
 </script>
-    
 </body>
 </html>
