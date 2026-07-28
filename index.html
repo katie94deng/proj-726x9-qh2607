@@ -209,6 +209,11 @@ header h3{
 }
 .scene-item.lock{opacity:0.62}
 
+  .answer-correct{
+  background-color:#d6efdb !important;
+  border:1px solid #83c996 !important;
+}
+  
 /* 仓库样式 */
 .warehouse-tab{
   display:flex;
@@ -277,13 +282,7 @@ header h3{
   border-radius:14px;
   margin:10px 0;
 }
-  .opt-btn.correct-highlight {
-    background-color:#d6efdb !important;
-    border-color:#83c996 !important;
-  q.answer{
-    background-color:#d6efdb !important;
-    border:1px solid #83c996 !important;
-  }
+  
 }
 </style>
 </head>
@@ -1197,7 +1196,8 @@ function chooseOption(btnDom,userOpt,q){
     showPop(isPassScene
       ? "回答正确！（已通关场景不再获得光粒）"
       : "✅回答正确！获得✨1光粒");
-    
+   // 给正确选项添加高亮class
+correctAnswerDom.classList.add("answer-correct"); 
   }else{
     // 答错
     if(!quizReviewMode){
@@ -1206,6 +1206,8 @@ function chooseOption(btnDom,userOpt,q){
       }
     }
     showPop(`❌回答错误！正确答案：${q.answer}`);
+    // 给正确选项添加高亮class
+correctAnswerDom.classList.add("answer-correct");
   }
   // 下一题点击
   btnNext.onclick = function(){
