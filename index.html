@@ -208,7 +208,12 @@ header h3{
   box-shadow:0 1px 5px rgba(0,0,0,0.05);
 }
 .scene-item.lock{opacity:0.62}
-
+/*答题正确答案高亮*/
+.opt-btn.correct-highlight {
+  background-color:#d6efdb !important;
+  border-color:#83c996 !important;
+}
+  
 /* 仓库样式 */
 .warehouse-tab{
   display:flex;
@@ -1123,141 +1128,184 @@ function buyFertilizer(){
   }
 }
 
-// =====================答题系统核心=====================
-function renderSceneList(){
-  const wrap = document.getElementById("scene-list");
-  wrap.innerHTML = "";
-  QUESTION_BANK.forEach(scene=>{
-    const div = document.createElement("div");
-    div.className = "scene-item " + (scene.unlock?"":"lock");
-    let passTip = scene.isPass ? "✅已通关（再次刷题无光粒）" : "";
-    div.innerHTML = `<b>${scene.sceneName}</b>${passTip?`<div style="font-size:13px;color:#709967;margin-top:4px">${passTip}</div>`:""}`;
-    if(scene.unlock){
-      div.onclick = ()=>openSceneQuiz(scene);
-    }
-    wrap.appendChild(div);
-  })
-}
-function openSceneQuiz(scene){
-  currentSceneData = scene;
-  const isScenePass = scene.isPass;
+// =====================答题系统核心【新版重构】=====================
+let currentSceneData = null;
+let quizList = [];
+let quizIndex = 0;
+let quizReviewMode = false;
 
-  if(isScenePass){
-    // 已通关：练习模式，加载完整原题
-    quizReviewMode = false;
-    quizList = JSON.parse(JSON.stringify(scene.questions));
-  }else{
-    // 未通关逻辑：原始题没跑完=完整题库；跑完且存在错题=错题模式
-    if(scene.finishOriginalRound === true && scene.wrongList.length > 0){
-      quizReviewMode = true;
-      quizList = JSON.parse(JSON.stringify(scene.wrongList));
-    }else{
-      quizReviewMode = false;
-      quizList = JSON.parse(JSON.stringify(scene.questions));
+// 打开场景答题入口
+function openSceneQuiz(scene) {
+    currentSceneData = scene;
+    // 兼容旧存档，自动初始化作答记录数组
+    if (!currentSceneData.answeredList) currentSceneData.answeredList = [];
+    if (currentSceneData.isPass) {
+        // 练习模式
+        quizReviewMode = false;
+        quizList = [...QUESTION_BANK];
+    } else {
+        // 未通关场景
+        if(currentSceneData.finishOriginalRound && currentSceneData.wrongList.length > 0){
+            quizReviewMode = true;
+            quizList = [...currentSceneData.wrongList];
+        }else{
+            quizReviewMode = false;
+            quizList = [...QUESTION_BANK];
+        }
     }
-  }
+    quizIndex = currentSceneData.progressIndex || 0;
+    renderQuiz();
+    document.getElementById("scene-list").style.display = "none";
+    document.getElementById("quiz-area").style.display = "block";
+}
 
-  document.getElementById("scene-list").style.display = "none";
-  document.getElementById("quiz-area").style.display = "block";
-  renderQuiz();
+// 渲染单题
+function renderQuiz() {
+    if(quizIndex >= quizList.length){
+        return checkRoundComplete();
+    }
+    const q = quizList[quizIndex];
+    document.querySelector(".quiz-title").textContent = `第${quizIndex+1}/${quizList.length}题`;
+    document.querySelector(".quiz-question").textContent = q.q;
+    document.querySelector(".quiz-translate").textContent = q.trans;
+
+    const wrap = document.querySelector(".option-wrap");
+    wrap.innerHTML = "";
+    q.options.forEach(opt=>{
+        const btn = document.createElement("div");
+        btn.className = "opt-btn";
+        btn.textContent = opt;
+        btn.onclick = ()=> chooseOption(btn, opt, q);
+        wrap.appendChild(btn);
+    });
+
+    // 判断是否已经作答
+    if(currentSceneData.answeredList.includes(quizIndex)){
+        setTimeout(()=>{
+            showModal("该题目已经作答，请点击下一题继续作答");
+        },200);
+    }
 }
-function renderQuiz(){
-  selectedAnswer = null;
-  const btnNext = document.getElementById("btn-next");
-  btnNext.style.display = "none";
-  if(quizIndex >= quizList.length){
-  // ====== 这里新增步骤5代码 START ======
-  // 当前正在答原始题库，整套题目跑完，打上完成标记
-  if(!quizReviewMode && !currentSceneData.isPass){
-    currentSceneData.finishOriginalRound = true;
-  }
-  // ====== 这里新增步骤5代码 END ======
-  if(!quizReviewMode){
-    // 首轮结束，进入错题复盘
-    if(currentSceneData.wrongList.length > 0){
-      quizReviewMode = true;
-      quizIndex = 0;
-      quizList = JSON.parse(JSON.stringify(currentSceneData.wrongList));
-      showPop("本轮答题结束，进入错题复盘！");
+
+// 选择答案
+function chooseOption(btnDom, userOpt, q) {
+    // 已经作答直接拦截
+    if(currentSceneData.answeredList.includes(quizIndex)) return;
+
+    // 标记本题已作答
+    if(!currentSceneData.answeredList.includes(quizIndex)){
+        currentSceneData.answeredList.push(quizIndex);
+    }
+
+    const isRight = userOpt === q.answer;
+    // 正确答案高亮
+    const allBtns = document.querySelectorAll(".opt-btn");
+    allBtns.forEach(b=>{
+        if(b.textContent === q.answer){
+            b.classList.add("correct-highlight");
+        }
+    });
+
+    if(isRight){
+        showModal("回答正确！");
     }else{
-      // 无错题，通关
-      scenePass();
-      return;
+        showModal("回答错误，请留意正确答案。");
     }
-  }else{
-    // 复盘完成
-    scenePass();
-    return;
-  }
+
+    // 错题处理逻辑
+    if(!currentSceneData.isPass){
+        if(!isRight){
+            // 答错加入错题列表
+            if(!currentSceneData.wrongList.find(x=>x.q === q.q)){
+                currentSceneData.wrongList.push(q);
+            }
+        }
+    }
+    // 练习模式不处理wrongList
+
+    saveData();
 }
-  const q = quizList[quizIndex];
-  const totalLen = quizList.length;
-  document.getElementById("quiz-progress").innerText = quizReviewMode
-    ? `【错题复盘】第${quizIndex+1}/${totalLen}题`
-    : `第${quizIndex+1}/${totalLen}题`;
-  document.getElementById("q-content").innerText = q.question;
-  document.getElementById("q-trans").innerText = q.translate;
-  const optBox = document.getElementById("option-box");
-  optBox.innerHTML = "";
-  q.options.forEach(opt=>{
-    const btn = document.createElement("button");
-    btn.className = "opt-btn";
-    btn.innerText = opt;
-    btn.onclick = ()=>chooseOption(btn,opt,q);
-    optBox.appendChild(btn);
-  })
-}
-function chooseOption(btnDom,userOpt,q){
-  if(selectedAnswer) return;
-  selectedAnswer = userOpt;
-  document.querySelectorAll(".opt-btn").forEach(b=>b.classList.add("disabled"));
-  const btnNext = document.getElementById("btn-next");
-  btnNext.style.display = "block";
-  const isPassScene = currentSceneData.isPass;
-  if(userOpt === q.answer){
-    // 答对
-    if(!isPassScene){
-      gameData.lightGrain += 1;
-      refreshResource();
-    }
-    showPop(isPassScene
-      ? "回答正确！（已通关场景不再获得光粒）"
-      : "✅回答正确！获得✨1光粒");
-  }else{
-    // 答错
-    if(!quizReviewMode){
-      if(!currentSceneData.wrongList.find(item=>item.question === q.question)){
-        currentSceneData.wrongList.push(JSON.parse(JSON.stringify(q)));
-      }
-    }
-    showPop(`❌回答错误！正确答案：${q.answer}`);
-  }
-  // 下一题点击
-  btnNext.onclick = function(){
+
+// 下一题
+function nextQuiz(){
     quizIndex++;
-    // 所有模式都保存当前题号进度
-currentSceneData.progressIndex = quizIndex;
+    currentSceneData.progressIndex = quizIndex;
     saveData();
     renderQuiz();
-  }
 }
+
+// 一轮题目全部遍历完成后的检测
+function checkRoundComplete(){
+    if(currentSceneData.isPass){
+        // 练习模式走完一轮，清空进度
+        currentSceneData.progressIndex = 0;
+        currentSceneData.answeredList = [];
+        quizIndex = 0;
+        saveData();
+        showModal("本轮练习完成，点击确定重新开始练习",()=>{
+            renderQuiz();
+        });
+        return;
+    }
+
+    if(!quizReviewMode){
+        // 原题全部答完
+        currentSceneData.finishOriginalRound = true;
+        saveData();
+        if(currentSceneData.wrongList.length === 0){
+            // 无错题，直接通关
+            scenePass();
+        }else{
+            // 进入错题循环模式
+            quizReviewMode = true;
+            quizList = [...currentSceneData.wrongList];
+            quizIndex = 0;
+            currentSceneData.progressIndex = 0;
+            currentSceneData.answeredList = [];
+            saveData();
+            showModal("原题完成，现在开始订正错题",()=>{
+                renderQuiz();
+            });
+        }
+    }else{
+        // 错题模式一轮走完
+        if(currentSceneData.wrongList.length === 0){
+            scenePass();
+        }else{
+            // 依旧存在错题，再次循环
+            quizList = [...currentSceneData.wrongList];
+            quizIndex = 0;
+            currentSceneData.progressIndex = 0;
+            currentSceneData.answeredList = [];
+            saveData();
+            showModal("还有错题未答对，继续作答",()=>{
+                renderQuiz();
+            });
+        }
+    }
+}
+
+// 场景成功通关
 function scenePass(){
-  currentSceneData.isPass = true;
-  quizIndex = 0; // 新增：通关后清空答题进度
-  // 解锁下一场景
-  const idx = QUESTION_BANK.findIndex(s=>s.sceneId === currentSceneData.sceneId);
-  if(idx+1 < QUESTION_BANK.length){
-    QUESTION_BANK[idx+1].unlock = true;
-  }
-  saveData();
-  document.getElementById("quiz-area").style.display = "none";
-  document.getElementById("scene-list").style.display = "block";
-  showPop("🎉恭喜！本场景全部通关，解锁下一学习场景！",()=>{
-    quizIndex = 0;
-  saveGameData();
-  renderSceneList();
-  });
+    currentSceneData.isPass = true;
+    // 清空所有答题进度
+    currentSceneData.progressIndex = 0;
+    currentSceneData.answeredList = [];
+    currentSceneData.wrongList = [];
+    currentSceneData.finishOriginalRound = false;
+    saveData();
+    showModal("恭喜！本场景全部题目完成通关，可进入练习模式。",()=>{
+        exitQuiz();
+    });
 }
+
+// 返回按钮（修复bug）
+function exitQuiz(){
+    saveData();
+    document.getElementById("quiz-area").style.display = "none";
+    document.getElementById("scene-list").style.display = "block";
+}
+// =====================答题系统核心【新版结束】=====================
 
 // 定时刷新农田倒计时
 setInterval(()=>{
