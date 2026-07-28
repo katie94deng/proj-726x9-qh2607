@@ -64,7 +64,8 @@ header h3{
   background:#b8afa0;
   opacity:0.72;
 }
-.land-text{font-size:12px;margin-top:4px;color:#555;}
+.land-text{font-size:12px;margin-top:4px;color:#555;position:absolute;bottom:4px;left:0;right:0;text-align:center;z-index:10; /* 关键：层级高于遮罩 */
+}
 .grow-tip{font-size:11px;color:#6b6254;margin-top:3px;}
 .land-mask{
   position:absolute;
@@ -78,6 +79,15 @@ header h3{
   font-size:13px;
   text-align:center;
   padding:6px;
+  z-index:5; /* 层级低于地块文字 */
+}
+  /* 未解锁土地（带灰色遮罩）文字改为浅白色，看得清 */
+.land-item.lock .land-text{
+  color:#eeeeee;
+}
+/* 已解锁正常土地深色文字 */
+.land-item:not(.lock) .land-text{
+  color:#333333;
 }
 
 /* 底部导航 */
@@ -829,7 +839,7 @@ function renderFarm(){
     div.className = "land-item " + (land.unlock?"":"lock");
     const plant = gameData.farmPlants[idx];
     if(!land.unlock){
-      div.innerHTML = `<div class="land-mask">解锁💰${land.cost}</div><span class="land-text">地块${idx+1}</span>`;
+      div.innerHTML = `<div class="land-mask">解锁💰${land.cost}</div><span class="land-text">土地${idx+1}</span>`;
       div.onclick = ()=>unlockLand(idx);
     }else{
       if(!plant){
