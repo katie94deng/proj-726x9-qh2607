@@ -1253,7 +1253,9 @@ function scenePass(){
   document.getElementById("quiz-area").style.display = "none";
   document.getElementById("scene-list").style.display = "block";
   showPop("🎉恭喜！本场景全部通关，解锁下一学习场景！",()=>{
-    renderSceneList();
+    quizIndex = 0;
+  saveGameData();
+  renderSceneList();
   });
 }
 
