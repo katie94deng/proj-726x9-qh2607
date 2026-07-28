@@ -300,6 +300,10 @@ header h3{
     <h4>📖答题挑战</h4>
     <div id="scene-list"></div>
     <div id="quiz-area" style="display:none;margin-top:16px;">
+      <div style="display:flex;align-items:center;padding:10px 6px;gap:6px;">
+  <button onclick="exitQuiz()" style="border:none;background:#A8D8B9;color:#fff;padding:5px 10px;border-radius:8px;font-size:14px;">← 返回</button>
+  <div style="font-size:16px;font-weight:bold;flex:1;text-align:center;">答题挑战</div>
+</div>
       <div class="progress-text" id="quiz-progress"></div>
       <div class="question-card">
         <div class="q-title" id="q-content"></div>
@@ -390,6 +394,7 @@ const QUESTION_BANK = [
     sceneName: "机场入境 & 海关沟通",
     unlock: true,
     isPass: false,
+    finishOriginalRound: false,
     progressIndex: 0,
     wrongList: [],
     questions: [
@@ -434,6 +439,7 @@ const QUESTION_BANK = [
     sceneName: "酒店预订、前台入住沟通",
     unlock: false,
     isPass: false,
+    finishOriginalRound: false,
     progressIndex: 0,
     wrongList: [],
     questions: [
@@ -478,6 +484,7 @@ const QUESTION_BANK = [
     sceneName: "市内交通（打车、地铁、公交）",
     unlock: false,
     isPass: false,
+    finishOriginalRound: false,
     progressIndex: 0,
     wrongList: [],
     questions: [
@@ -522,6 +529,7 @@ const QUESTION_BANK = [
     sceneName: "餐厅点餐、用餐交流",
     unlock: false,
     isPass: false,
+    finishOriginalRound: false,
     progressIndex: 0,
     wrongList: [],
     questions: [
@@ -566,6 +574,7 @@ const QUESTION_BANK = [
     sceneName: "超市&便利店采购",
     unlock: false,
     isPass: false,
+    finishOriginalRound: false,
     progressIndex: 0,
     wrongList: [],
     questions: [
@@ -610,6 +619,7 @@ const QUESTION_BANK = [
     sceneName: "商场购物、退换货咨询",
     unlock: false,
     isPass: false,
+    finishOriginalRound: false,
     progressIndex: 0,
     wrongList: [],
     questions: [
@@ -654,6 +664,7 @@ const QUESTION_BANK = [
     sceneName: "景区游览、购票、问路",
     unlock: false,
     isPass: false,
+    finishOriginalRound: false,
     progressIndex: 0,
     wrongList: [],
     questions: [
@@ -698,6 +709,7 @@ const QUESTION_BANK = [
     sceneName: "社交聚会、邀约结伴",
     unlock: false,
     isPass: false,
+    finishOriginalRound: false,
     progressIndex: 0,
     wrongList: [],
     questions: [
@@ -738,7 +750,14 @@ const QUESTION_BANK = [
   }
 ];
 // =================================================================
-
+  
+// 中途退出答题，保存进度返回场景列表
+function exitQuiz(){
+  saveGameData();
+  document.getElementById("quiz-area").style.display = "none";
+  document.getElementById("scene-list").style.display = "block";
+}
+  
 // 全局数据
 let gameData = {
   lightGrain:0,
