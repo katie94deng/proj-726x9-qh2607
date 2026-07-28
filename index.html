@@ -280,6 +280,10 @@ header h3{
   .opt-btn.correct-highlight {
     background-color:#d6efdb !important;
     border-color:#83c996 !important;
+  q.answer{
+    background-color:#d6efdb !important;
+    border:1px solid #83c996 !important;
+  }
 }
 </style>
 </head>
@@ -1193,7 +1197,7 @@ function chooseOption(btnDom,userOpt,q){
     showPop(isPassScene
       ? "回答正确！（已通关场景不再获得光粒）"
       : "✅回答正确！获得✨1光粒");
-    q.answer{background-color:#d6efdb !important;border:1px solid #83c996 !important;}
+    
   }else{
     // 答错
     if(!quizReviewMode){
