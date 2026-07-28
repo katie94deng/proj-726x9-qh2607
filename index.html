@@ -372,10 +372,13 @@ header h3{
 <script>
 // =====================【全局配置区，可扩展修改】=====================
 const CROP_CONFIG = [
-  {name:"青菜",emoji:"🥬",seedCost:5,sellPrice:12,growTime:90},
-  {name:"番茄",emoji:"🍅",seedCost:6,sellPrice:14,growTime:120},
-  {name:"白菜",emoji:"🥬",seedCost:6,sellPrice:13,growTime:100},
-  {name:"胡萝卜",emoji:"🥕",seedCost:7,sellPrice:15,growTime:140},
+  {name:"白菜",emoji:"🥬",seedCost:5,sellPrice:10,growTime:60},
+  {name:"番茄",emoji:"🍅",seedCost:6,sellPrice:15,growTime:90},
+  {name:"胡萝卜",emoji:"🥕",seedCost:7,sellPrice:20,growTime:120},
+  {name:"玉米",emoji:"🌽",seedCost:8,sellPrice:25,growTime:150},
+  {name:"草莓",emoji:"🍓",seedCost:9,sellPrice:30,growTime:180},
+  {name:"西瓜",emoji:"🍉",seedCost:10,sellPrice:35,growTime:210},
+  {name:"葡萄",emoji:"🍇",seedCost:11,sellPrice:40,growTime:240}
 ];
 const FERTILIZER_CONFIG = {
   name:"速效化肥",emoji:"🧪",price:8,reduceTime:40,limitPerCycle:1
@@ -384,12 +387,12 @@ const FERTILIZER_CONFIG = {
 const LAND_CONFIG = [
   {unlock:true,cost:0},
   {unlock:true,cost:0},
-  {unlock:false,cost:80},
-  {unlock:false,cost:110},
-  {unlock:false,cost:150},
-  {unlock:false,cost:190},
-  {unlock:false,cost:240},
-  {unlock:false,cost:300},
+  {unlock:false,cost:40},
+  {unlock:false,cost:70},
+  {unlock:false,cost:100},
+  {unlock:false,cost:140},
+  {unlock:false,cost:180},
+  {unlock:false,cost:230},
 ];
 // 题库基础结构，后续可扩充更多题目
 const QUESTION_BANK = [
