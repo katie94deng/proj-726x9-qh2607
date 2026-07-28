@@ -1140,9 +1140,23 @@ function renderSceneList(){
 }
 function openSceneQuiz(scene){
   currentSceneData = scene;
-  quizReviewMode = false;
-  quizIndex = scene.progressIndex;
-  quizList = JSON.parse(JSON.stringify(scene.questions));
+  const isScenePass = scene.isPass;
+
+  if(isScenePass){
+    // 已通关：练习模式，加载完整原题
+    quizReviewMode = false;
+    quizList = JSON.parse(JSON.stringify(scene.questions));
+  }else{
+    // 未通关逻辑：原始题没跑完=完整题库；跑完且存在错题=错题模式
+    if(scene.finishOriginalRound === true && scene.wrongList.length > 0){
+      quizReviewMode = true;
+      quizList = JSON.parse(JSON.stringify(scene.wrongList));
+    }else{
+      quizReviewMode = false;
+      quizList = JSON.parse(JSON.stringify(scene.questions));
+    }
+  }
+
   document.getElementById("scene-list").style.display = "none";
   document.getElementById("quiz-area").style.display = "block";
   renderQuiz();
@@ -1152,24 +1166,30 @@ function renderQuiz(){
   const btnNext = document.getElementById("btn-next");
   btnNext.style.display = "none";
   if(quizIndex >= quizList.length){
-    if(!quizReviewMode){
-      // 首轮结束，进入错题复盘
-      if(currentSceneData.wrongList.length > 0){
-        quizReviewMode = true;
-        quizIndex = 0;
-        quizList = JSON.parse(JSON.stringify(currentSceneData.wrongList));
-        showPop("本轮答题结束，进入错题复盘！");
-      }else{
-        // 无错题，通关
-        scenePass();
-        return;
-      }
+  // ====== 这里新增步骤5代码 START ======
+  // 当前正在答原始题库，整套题目跑完，打上完成标记
+  if(!quizReviewMode && !currentSceneData.isPass){
+    currentSceneData.finishOriginalRound = true;
+  }
+  // ====== 这里新增步骤5代码 END ======
+  if(!quizReviewMode){
+    // 首轮结束，进入错题复盘
+    if(currentSceneData.wrongList.length > 0){
+      quizReviewMode = true;
+      quizIndex = 0;
+      quizList = JSON.parse(JSON.stringify(currentSceneData.wrongList));
+      showPop("本轮答题结束，进入错题复盘！");
     }else{
-      // 复盘完成
+      // 无错题，通关
       scenePass();
       return;
     }
+  }else{
+    // 复盘完成
+    scenePass();
+    return;
   }
+}
   const q = quizList[quizIndex];
   const totalLen = quizList.length;
   document.getElementById("quiz-progress").innerText = quizReviewMode
@@ -1215,15 +1235,15 @@ function chooseOption(btnDom,userOpt,q){
   // 下一题点击
   btnNext.onclick = function(){
     quizIndex++;
-    if(!quizReviewMode){
-      currentSceneData.progressIndex = quizIndex;
-    }
+    // 所有模式都保存当前题号进度
+currentSceneData.progressIndex = quizIndex;
     saveData();
     renderQuiz();
   }
 }
 function scenePass(){
   currentSceneData.isPass = true;
+  quizIndex = 0; // 新增：通关后清空答题进度
   // 解锁下一场景
   const idx = QUESTION_BANK.findIndex(s=>s.sceneId === currentSceneData.sceneId);
   if(idx+1 < QUESTION_BANK.length){
