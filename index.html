@@ -1144,9 +1144,16 @@ function renderSceneList(){
 }
 function openSceneQuiz(scene){
   currentSceneData = scene;
-  quizReviewMode = false;
-  quizIndex = scene.progressIndex;
-  quizList = JSON.parse(JSON.stringify(scene.questions));
+  // 已通关场景强制完整刷题，重置从头开始，不加载错题
+  if(currentSceneData.isPass) {
+    quizReviewMode = false;
+    quizIndex = 0;
+    quizList = JSON.parse(JSON.stringify(scene.questions));
+  } else {
+    quizReviewMode = false;
+    quizIndex = scene.progressIndex;
+    quizList = JSON.parse(JSON.stringify(scene.questions));
+  }
   document.getElementById("scene-list").style.display = "none";
   document.getElementById("quiz-area").style.display = "block";
   renderQuiz();
@@ -1157,21 +1164,26 @@ function renderQuiz(){
   btnNext.style.display = "none";
   if(quizIndex >= quizList.length){
     if(!quizReviewMode){
-      // 首轮结束，进入错题复盘
+      // 首轮整套题目答完
       if(currentSceneData.wrongList.length > 0){
         quizReviewMode = true;
         quizIndex = 0;
         quizList = JSON.parse(JSON.stringify(currentSceneData.wrongList));
         showPop("本轮答题结束，进入错题复盘！");
       }else{
-        // 无错题，通关
         scenePass();
         return;
       }
     }else{
-      // 复盘完成
-      scenePass();
-      return;
+      // 错题集一轮完成，判断是否还有错题，无限循环
+      if(currentSceneData.wrongList.length > 0){
+        quizIndex = 0;
+        quizList = JSON.parse(JSON.stringify(currentSceneData.wrongList));
+        showPop("仍存在错题，请继续复盘！");
+      }else{
+        scenePass();
+        return;
+      }
     }
   }
   const q = quizList[quizIndex];
@@ -1199,14 +1211,12 @@ function chooseOption(btnDom,userOpt,q){
   btnNext.style.display = "block";
   const isPassScene = currentSceneData.isPass;
 
-  // 遍历所有选项，标记颜色
+  // 遍历所有选项，标记对错底色
   allOptBtns.forEach(b=>{
     b.classList.add("disabled");
-    // 正确答案统一绿色底色
     if(b.innerText === q.answer){
       b.classList.add("correct-opt");
     }
-    // 用户选错，自己点的按钮粉色
     if(b.innerText === userOpt && userOpt !== q.answer){
       b.classList.add("error-opt");
     }
@@ -1223,11 +1233,9 @@ function chooseOption(btnDom,userOpt,q){
       : "✅回答正确！获得✨1光粒");
    
   }else{
-    // 答错
-    if(!quizReviewMode){
-      if(!currentSceneData.wrongList.find(item=>item.question === q.question)){
-        currentSceneData.wrongList.push(JSON.parse(JSON.stringify(q)));
-      }
+    // 答错：普通答题、错题复盘都存入错题列表
+    if(!currentSceneData.wrongList.find(item=>item.question === q.question)){
+      currentSceneData.wrongList.push(JSON.parse(JSON.stringify(q)));
     }
     showPop(`❌回答错误！正确答案：${q.answer}`);
     
@@ -1256,7 +1264,7 @@ function scenePass(){
     renderSceneList();
   });
 }
-
+  
 // 定时刷新农田倒计时
 setInterval(()=>{
   if(document.getElementById("page-farm").classList.contains("active")){
