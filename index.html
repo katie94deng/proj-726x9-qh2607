@@ -1169,16 +1169,20 @@ function renderQuiz(){
         quizReviewMode = true;
         quizIndex = 0;
         quizList = JSON.parse(JSON.stringify(currentSceneData.wrongList));
+        // 清空原错题列表，本轮复盘只记录新答错的题目
+        currentSceneData.wrongList = [];
         showPop("本轮答题结束，进入错题复盘！");
       }else{
         scenePass();
         return;
       }
     }else{
-      // 错题集一轮完成，判断是否还有错题，无限循环
+      // 本轮错题复盘全部做完
       if(currentSceneData.wrongList.length > 0){
         quizIndex = 0;
         quizList = JSON.parse(JSON.stringify(currentSceneData.wrongList));
+        // 清空，下一轮只存本次新错题
+        currentSceneData.wrongList = [];
         showPop("仍存在错题，请继续复盘！");
       }else{
         scenePass();
