@@ -209,9 +209,20 @@ header h3{
 }
 .scene-item.lock{opacity:0.62}
 
-  .answer-correct{
-  background-color:#d6efdb !important;
-  border:1px solid #83c996 !important;
+/* 答题选项对错底色样式 */
+.opt-btn.correct-opt {
+  background: #e6f7ec;
+  border-color: #288c42;
+}
+.opt-btn.error-opt {
+  background: #ffe8e8;
+  border-color: #e74c3c;
+}
+.opt-btn.disabled {
+  opacity: 0.65;
+  pointer-events: none;
+}
+  
 }
   
 /* 仓库样式 */
@@ -1183,10 +1194,24 @@ function renderQuiz(){
 function chooseOption(btnDom,userOpt,q){
   if(selectedAnswer) return;
   selectedAnswer = userOpt;
-  document.querySelectorAll(".opt-btn").forEach(b=>b.classList.add("disabled"));
+  const allOptBtns = document.querySelectorAll(".opt-btn");
   const btnNext = document.getElementById("btn-next");
   btnNext.style.display = "block";
   const isPassScene = currentSceneData.isPass;
+
+  // 遍历所有选项，标记颜色
+  allOptBtns.forEach(b=>{
+    b.classList.add("disabled");
+    // 正确答案统一绿色底色
+    if(b.innerText === q.answer){
+      b.classList.add("correct-opt");
+    }
+    // 用户选错，自己点的按钮粉色
+    if(b.innerText === userOpt && userOpt !== q.answer){
+      b.classList.add("error-opt");
+    }
+  })
+
   if(userOpt === q.answer){
     // 答对
     if(!isPassScene){
